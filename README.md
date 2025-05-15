@@ -1,6 +1,8 @@
 # ProbExpect - Probability Expectation Calculator
 
 **ProbExpect** is a simple web-based calculator for estimating the expected cost and number of attempts required to achieve at least one success in probabilistic scenarios with replacement — such as gacha pulls in games.
+Check this link: [https://lacri1.github.io/ProbExpect/](https://lacri1.github.io/ProbExpect/)
+
 
 ## Purpose
 

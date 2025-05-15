@@ -1,6 +1,6 @@
 /* #root는 React 기본 구조에 적용 */
 #root {
-  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -14,7 +14,7 @@
 
 /* 전체 레이아웃: 좌우로 나눠서 보여줌 */
 .app-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 1.5rem;
   display: flex;

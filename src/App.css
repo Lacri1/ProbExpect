@@ -1,6 +1,6 @@
 /* #root는 React 기본 구조에 적용 */
 #root {
-  width: 100%;
+  width: 85%;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,

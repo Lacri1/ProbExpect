@@ -181,7 +181,7 @@ function App() {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="batch-size">1회 시도 시 뽑는 개수</label>
+                        <label htmlFor="batch-size">시행 당 뽑는 개수</label>
                         <input
                             id="batch-size"
                             type="number"

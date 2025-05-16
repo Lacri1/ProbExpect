@@ -30,7 +30,7 @@
 .graph-section {
   flex: 3;
   text-align: left;
-  padding: 1rem;
+  padding-bottom: 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
@@ -68,7 +68,7 @@
 .chart-info {
   font-size: 14px;
   color: #666;
-  margin-top: 10px;
+  margin-top: 30px;
   text-align: center;
 }
 
@@ -293,9 +293,16 @@
     width: 100%;
   }
 
-  /* 모바일에서 차트 높이 조정 */
   .chart-wrapper {
     height: 300px;
+    padding-right: 1em;
+  }
+
+  .graph-section h1 {
+    font-size: 2.5em;
+    text-align: center;
+    display: block;       /* inline-block을 block으로 덮어쓰기 */
+    margin: 0 auto;       /* 수평 가운데 정렬 */
   }
 }
 

@@ -53,7 +53,7 @@
   gap: 20px;
 }
 
-/* 차트 영역 */
+/* 차트 영역 - 높이 제한 추가 */
 .chart-wrapper {
   background-color: white;
   border-radius: 8px;
@@ -61,6 +61,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   margin-bottom: 20px;
+  height: 400px; /* 고정 높이 설정 */
+  position: relative; /* 포지셔닝 컨텍스트 생성 */
 }
 
 .chart-info {
@@ -96,6 +98,55 @@
   color: #555;
 }
 
+/* 체크박스를 포함한 라벨 스타일링 */
+.input-group label input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* 토글 체크박스 스타일링 */
+.input-group input[type="checkbox"] {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+  position: relative;
+  margin-right: 10px;
+  transition: all 0.2s;
+}
+
+.input-group input[type="checkbox"]:checked {
+  background-color: #4bc0c0;
+  border-color: #4bc0c0;
+}
+
+.input-group input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.input-group input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25);
+}
+
+.input-group input[type="checkbox"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* 입력 박스 스타일 */
 .input-number {
   width: 100px;
@@ -112,6 +163,12 @@
   border-color: #4bc0c0;
   outline: none;
   box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25);
+}
+
+.input-number:disabled {
+  opacity: 0.7;
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 /* 계산 버튼 */
@@ -139,6 +196,13 @@
 
 .btn-calc:active {
   transform: translateY(1px);
+}
+
+.btn-calc:disabled {
+  background: linear-gradient(135deg, #8ad3d3 0%, #7bc0c0 100%);
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
 }
 
 /* 통계 결과 영역 */
@@ -228,6 +292,11 @@
   .graph-section, .right-panel {
     width: 100%;
   }
+
+  /* 모바일에서 차트 높이 조정 */
+  .chart-wrapper {
+    height: 300px;
+  }
 }
 
 /* 다크 모드 */
@@ -260,6 +329,16 @@
   }
 
   .input-number:focus {
+    border-color: #36a1a1;
+  }
+
+  .input-group input[type="checkbox"] {
+    border-color: #555;
+    background-color: #333;
+  }
+
+  .input-group input[type="checkbox"]:checked {
+    background-color: #36a1a1;
     border-color: #36a1a1;
   }
 

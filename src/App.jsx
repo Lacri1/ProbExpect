@@ -190,14 +190,14 @@ function factorial(n) {
 }
 
 function App() {
-    const [probPercent, setProbPercent] = useState(3);
-    const [cost, setCost] = useState(270);
-    const [batchSize, setBatchSize] = useState(1);
+    const [probPercent, setProbPercent] = useState("3");
+    const [cost, setCost] = useState("270");
+    const [batchSize, setBatchSize] = useState("1");
     const [data, setData] = useState(null);
     const [stats, setStats] = useState(null);
     const [dynamicMaxAttempts, setDynamicMaxAttempts] = useState(100);
     const [isMultipleWin, setIsMultipleWin] = useState(false);
-    const [targetWinCount, setTargetWinCount] = useState(1);
+    const [targetWinCount, setTargetWinCount] = useState("1");
     const [calculating, setCalculating] = useState(false);
 
     const p = useMemo(() => probPercent / 100, [probPercent]);
@@ -228,13 +228,25 @@ function App() {
 
     // 계산 함수
     const handleCalculate = useCallback(() => {
-        if (p <= 0 || p > 1 || cost <= 0 || batchSize <= 0) {
-            alert("올바른 값을 입력해주세요.");
+        // 문자열 상태를 숫자로 변환
+        const prob = Number(probPercent);
+        const c = Number(cost);
+        const batch = Number(batchSize);
+        const target = Number(targetWinCount);
+
+        if (
+            isNaN(prob) || prob <= 0 || prob > 100 ||
+            isNaN(c) || c <= 0 ||
+            isNaN(batch) || batch <= 0 ||
+            (isMultipleWin && (isNaN(target) || target < 1))
+        ) {
+            alert("모든 입력란에 올바른 숫자를 입력해주세요.");
             return;
         }
 
         // 계산 시작
         setCalculating(true);
+
 
         // 비동기로 처리하여 UI 블록 방지
         setTimeout(() => {
@@ -311,7 +323,7 @@ function App() {
                 setCalculating(false);
             }
         }, 100);
-    }, [p, cost, batchSize, pBatch, isMultipleWin, targetWinCount, calculateOptimalAttempts, isHeavyComputation]);
+    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin]);
 
     // 자동 계산 제거 (useEffect 제거)
 
@@ -369,12 +381,9 @@ function App() {
                         <label htmlFor="prob-percent">당첨 확률 (%)</label>
                         <input
                             id="prob-percent"
-                            type="number"
+                            type="text"
                             value={probPercent}
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            onChange={(e) => setProbPercent(Number(e.target.value))}
+                            onChange={(e) => setProbPercent(e.target.value)}
                             className="input-number"
                             disabled={calculating}
                         />
@@ -384,10 +393,9 @@ function App() {
                         <label htmlFor="cost">1회 비용</label>
                         <input
                             id="cost"
-                            type="number"
+                            type="text"
                             value={cost}
-                            min="0"
-                            onChange={(e) => setCost(Number(e.target.value))}
+                            onChange={(e) => setCost(e.target.value)}
                             className="input-number"
                             disabled={calculating}
                         />
@@ -397,10 +405,9 @@ function App() {
                         <label htmlFor="batch-size">시행 당 뽑는 개수</label>
                         <input
                             id="batch-size"
-                            type="number"
+                            type="text"
                             value={batchSize}
-                            min="1"
-                            onChange={(e) => setBatchSize(Number(e.target.value))}
+                            onChange={(e) => setBatchSize(e.target.value)}
                             className="input-number"
                             disabled={calculating}
                         />
@@ -423,10 +430,9 @@ function App() {
                             <label htmlFor="target-win-count">목표 당첨 횟수</label>
                             <input
                                 id="target-win-count"
-                                type="number"
+                                type="text"
                                 value={targetWinCount}
-                                min="1"
-                                onChange={(e) => setTargetWinCount(Number(e.target.value))}
+                                onChange={(e) => setTargetWinCount(e.target.value)}
                                 className="input-number"
                                 disabled={calculating}
                             />
@@ -446,9 +452,9 @@ function App() {
                             <p><strong>시행당 당첨 확률:</strong> {stats.pBatchPercent}%</p>
                         </div>
                         <ul className="stats-list">
-                            <li><strong>상위 20%:</strong> {stats.n20.n}회, 총 {stats.n20.cost}</li>
-                            <li><strong>평균 63.2%:</strong> {stats.n63.n}회, 총 {stats.n63.cost}</li>
-                            <li><strong>상위 80%:</strong> {stats.n80.n}회, 총 {stats.n80.cost}</li>
+                            <li>상위 20% <strong>{stats.n20.n}회, 총 {stats.n20.cost}</strong></li>
+                            <li>평균 63.2% <strong>{stats.n63.n}회, 총 {stats.n63.cost}</strong></li>
+                            <li>상위 80% <strong>{stats.n80.n}회, 총 {stats.n80.cost}</strong></li>
                         </ul>
                     </div>
                 )}

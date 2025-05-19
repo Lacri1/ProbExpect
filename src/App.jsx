@@ -12,22 +12,11 @@ import {
 } from "chart.js";
 import "./App.css";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// 로그팩토리얼 캐싱 테이블
-const LOG_FACTORIAL_CACHE = [0]; // log(0!) = log(1) = 0
-
-// 로그팩토리얼 계산 (큰 숫자 처리를 위해 로그 영역에서 계산)
+// 로그팩토리얼 캐시
+const LOG_FACTORIAL_CACHE = [0];
 const logFactorial = (n) => {
-    // 캐시에 없는 값들을 계산하여 추가
     if (LOG_FACTORIAL_CACHE.length <= n) {
         for (let i = LOG_FACTORIAL_CACHE.length; i <= n; i++) {
             LOG_FACTORIAL_CACHE[i] = LOG_FACTORIAL_CACHE[i - 1] + Math.log(i);
@@ -36,139 +25,175 @@ const logFactorial = (n) => {
     return LOG_FACTORIAL_CACHE[n];
 };
 
-// 로그 영역에서 이항계수 계산
 const logCombination = (n, k) => {
-    if (k < 0 || k > n) return -Infinity; // 불가능한 경우
-    if (k === 0 || k === n) return 0; // log(1) = 0
+    if (k < 0 || k > n) return -Infinity;
+    if (k === 0 || k === n) return 0;
     return logFactorial(n) - logFactorial(k) - logFactorial(n - k);
 };
 
-// 로그 영역에서 이항확률 계산
 const logBinomialProbability = (n, k, p) => {
     if (p === 0) return k === 0 ? 0 : -Infinity;
     if (p === 1) return k === n ? 0 : -Infinity;
-
     const logComb = logCombination(n, k);
-    return logComb + k * Math.log(p) + (n - k) * Math.log(1 - p);
+    const kLogP = k > 0 ? k * Math.log(p) : 0;
+    const nMinusKLogOneMinusP = (n > k && p < 0.9999999999) ? (n - k) * Math.log(1 - p) : -Infinity;
+    return logComb + kLogP + nMinusKLogOneMinusP;
 };
 
-// 이항 확률 P(X = k)
 const binomialProbability = (n, k, p) => {
     if (p === 0) return k === 0 ? 1 : 0;
     if (p === 1) return k === n ? 1 : 0;
-
-    // 작은 n, k에 대해서는 직접 계산이 더 효율적
+    if (p < 1e-15 && k > 0) return 0;
+    if (p > 0.9999999999 && k < n) return 0;
     if (n < 100) {
-        const comb = Math.exp(logCombination(n, k));
-        return comb * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        try {
+            const comb = Math.exp(logCombination(n, k));
+            const result = comb * Math.pow(p, k) * Math.pow(1 - p, n - k);
+            return isNaN(result) ? 0 : result;
+        } catch (e) {
+            console.error('binomialProbability error:', e);
+            return 0;
+        }
     }
-
-    // 큰 수에 대해서는 로그 영역에서 계산
-    return Math.exp(logBinomialProbability(n, k, p));
+    const logProb = logBinomialProbability(n, k, p);
+    if (logProb === -Infinity || isNaN(logProb) || logProb < -700) return 0;
+    const result = Math.exp(logProb);
+    return isNaN(result) ? 0 : result;
 };
 
-// 이항 분포 누적 확률: P(X >= k) - 더 효율적인 방법
+const cumulativeNormal = (x) => {
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x) / Math.sqrt(2.0);
+    const t = 1.0 / (1.0 + p * x);
+    const erf = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * erf);
+};
+
 const cumulativeProbabilityAtLeastK = (n, k, p) => {
-    // 경계 케이스 처리
     if (k <= 0) return 1;
     if (k > n) return 0;
+    if (p < 1e-10 && k > 1) return 0;
+    if (p > 0.9999999999) return 1;
 
-    // p가 매우 작고 k가 크면 근사치 사용
     if (p < 0.001 && k > 50) {
         const mean = n * p;
         const stdDev = Math.sqrt(n * p * (1 - p));
-        // 정규분포 근사
-        return 1 - cumulativeNormal((k - 0.5 - mean) / stdDev);
+        const z = (k - 0.5 - mean) / stdDev;
+        const approx = 1 - cumulativeNormal(z);
+        if (approx <= 0) {
+            let sum = 0;
+            for (let i = k; i <= Math.min(n, k + 100); i++) {
+                const bp = binomialProbability(n, i, p);
+                if (!isNaN(bp)) sum += bp;
+            }
+            return sum;
+        }
+        return approx;
     }
 
-    // k가 n의 절반 이상이면 반대 방향으로 계산하는 것이 더 효율적
     if (k > n / 2 + 1) {
         let sum = 0;
         for (let i = 0; i < k; i++) {
-            sum += binomialProbability(n, i, p);
+            const bp = binomialProbability(n, i, p);
+            if (!isNaN(bp)) sum += bp;
         }
-        return 1 - sum;
+        return Math.max(0, Math.min(1, 1 - sum));
     }
 
-    // 일반적인 경우: P(X >= k) 직접 계산
     let sum = 0;
     for (let i = k; i <= n; i++) {
-        const binomProb = binomialProbability(n, i, p);
-        sum += binomProb;
-
-        // 합이 충분히 1에 가까워지면 조기 종료
-        if (sum > 0.9999) {
-            return sum;
-        }
+        const bp = binomialProbability(n, i, p);
+        if (!isNaN(bp)) sum += bp;
+        if (sum > 0.9999) break;
     }
-    return sum;
+    return isNaN(sum) ? 0 : Math.max(0, Math.min(1, sum));
 };
 
-// 표준정규분포 누적분포함수 (CDF) 근사
-function cumulativeNormal(x) {
-    const a1 = 0.254829592;
-    const a2 = -0.284496736;
-    const a3 = 1.421413741;
-    const a4 = -1.453152027;
-    const a5 = 1.061405429;
-    const p = 0.3275911;
+// 복수 성공을 처리하기 위한 확률 계산 (목표 성공 횟수까지)
+const calculateProbabilityForMultipleWins = (numBatches, p, batchSize, targetWinCount) => {
+    // 각 시행에서 개별 확률 p로 batchSize번 시도
+    // 전체 성공 횟수가 targetWinCount 이상일 확률 계산
 
-    const sign = x < 0 ? -1 : 1;
-    x = Math.abs(x) / Math.sqrt(2.0);
+    // 각 배치에서 성공할 확률은 여전히 p
+    // 총 시행 횟수 = numBatches * batchSize
+    // 목표 성공 횟수 = targetWinCount
 
-    const t = 1.0 / (1.0 + p * x);
-    const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    const totalTrials = numBatches * batchSize;
+    return cumulativeProbabilityAtLeastK(totalTrials, targetWinCount, p);
+};
 
-    return 0.5 * (1.0 + sign * erf);
-}
-
-// 직접 확률 계산을 피하기 위한 최적화된 함수
-const findAttemptsForProbOptimized = (targetProb, p, batchSize, isMultipleWin, targetWinCount, maxAttempts) => {
-    const epsilon = 1e-6;
+// 초저확률 상황에서 근사적 계산을 위한 함수
+const estimateAttemptsForVeryLowProbability = (targetProb, p, batchSize) => {
+    // 매우 작은 확률에서는 포아송 근사 사용
+    // 배치당 성공 확률(pBatch)이 작고, 시행횟수(n)가 크면 포아송 분포로 근사 가능
     const pBatch = 1 - Math.pow(1 - p, batchSize);
 
-    // 단순한 경우: 1회 이상 당첨
+    // 포아송 분포의 λ 파라미터 계산: λ = n * pBatch
+    // targetProb = 1 - e^(-λ)에서 λ 계산
+    const lambda = -Math.log(1 - targetProb);
+
+    // n = λ / pBatch
+    return Math.ceil(lambda / pBatch);
+};
+
+// 직접 확률 계산을 피하기 위한 최적화된 함수
+const findAttemptsForProbOptimized = (
+    targetProb,
+    p,
+    batchSize,
+    isMultipleWin,
+    targetWinCount,
+    maxAttempts
+) => {
+    const epsilon = 1e-10;
+
+    // 단순한 경우: 1회 이상 당첨 (복수 시행 당첨 미적용)
     if (!isMultipleWin || targetWinCount === 1) {
-        // log(1-P) 영역에서 계산
+        if (p < 0.0001) {
+            return estimateAttemptsForVeryLowProbability(targetProb, p, batchSize);
+        }
+
+        const pBatch = 1 - Math.pow(1 - p, batchSize);
+        if (pBatch < 1e-10) {
+            return estimateAttemptsForVeryLowProbability(targetProb, p, batchSize);
+        }
+
         const logOneMinusP = Math.log(1 - pBatch);
         const logOneMinusTarget = Math.log(1 - targetProb);
-
-        // n = log(1-target) / log(1-p)
         const n = Math.ceil(logOneMinusTarget / logOneMinusP);
         return Math.min(n, maxAttempts);
     }
 
-    // 평균(λ)이 작은 경우, 이항분포 대신 포아송 분포로 근사
-    if (pBatch < 0.01 && maxAttempts * pBatch < 10) {
-        const lambda = maxAttempts * pBatch; // 포아송 평균
-        let poissProb = 0;
-        let k = targetWinCount - 1;
+    // 복수 당첨 이분 탐색
+    const lowerBound = 1;
+    let upperBound;
 
-        // P(X >= targetWinCount) = 1 - P(X < targetWinCount)
-        while (k >= 0) {
-            poissProb += Math.exp(-lambda) * Math.pow(lambda, k) / factorial(k);
-            k--;
-        }
+    if (p >= 0.001) {
+        // 단순한 경우 시행 횟수 추정
+        const pBatch = 1 - Math.pow(1 - p, batchSize);
+        const logOneMinusP = Math.log(1 - pBatch);
+        const logOneMinusTarget = Math.log(1 - targetProb);
+        const simpleN = Math.ceil(logOneMinusTarget / logOneMinusP);
 
-        return Math.ceil(-Math.log(poissProb) / pBatch);
+        // 목표 당첨 횟수를 곱하여 upperBound 설정
+        upperBound = Math.min(maxAttempts, simpleN * targetWinCount);
+    } else {
+        // 저확률일수록 여유 있게 scaleFactor를 사용
+        const scaleFactor = p < 0.0001 ? 100 : (p < 0.001 ? 10 : 1);
+        upperBound = Math.ceil(Math.min(maxAttempts, scaleFactor * targetWinCount / (p * batchSize)));
     }
 
-    // 이분 탐색으로 필요한 시행 횟수 찾기
-    let left = 1;
-    let right = maxAttempts;
-    let result = maxAttempts;
+    let left = lowerBound;
+    let right = upperBound;
+    let result = upperBound;
 
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
-        let cumProb;
+        const prob = calculateProbabilityForMultipleWins(mid, p, batchSize, targetWinCount);
 
-        if (isMultipleWin) {
-            cumProb = cumulativeProbabilityAtLeastK(mid, targetWinCount, pBatch);
-        } else {
-            cumProb = 1 - Math.pow(1 - pBatch, mid);
-        }
-
-        if (cumProb + epsilon >= targetProb) {
+        if (prob >= targetProb - epsilon) {
             result = mid;
             right = mid - 1;
         } else {
@@ -176,66 +201,84 @@ const findAttemptsForProbOptimized = (targetProb, p, batchSize, isMultipleWin, t
         }
     }
 
-    return result;
+    return Math.min(result, maxAttempts);
 };
 
-// 작은 정수 팩토리얼 계산
-function factorial(n) {
-    if (n <= 1) return 1;
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-        result *= i;
+
+// 숫자를 적절한 형식으로 포맷팅하는 함수
+const formatNumber = (num) => {
+    if (num >= 1e6) {
+        // 백만 이상은 지수 표기법 사용
+        return num.toExponential(2).replace(/e\+?/, ' × 10^');
     }
-    return result;
-}
+    return num.toLocaleString();
+};
 
 function App() {
-    const [probPercent, setProbPercent] = useState("3");
-    const [cost, setCost] = useState("270");
+    const [probPercent, setProbPercent] = useState("0.7");  // 기본값을 더 작은 값으로 변경
+    const [cost, setCost] = useState("2700");
     const [batchSize, setBatchSize] = useState("1");
     const [data, setData] = useState(null);
     const [stats, setStats] = useState(null);
-    const [dynamicMaxAttempts, setDynamicMaxAttempts] = useState(100);
+    const [dynamicMaxAttempts, setDynamicMaxAttempts] = useState(100000);  // 기본 최대 시도 횟수 증가
     const [isMultipleWin, setIsMultipleWin] = useState(false);
-    const [targetWinCount, setTargetWinCount] = useState("1");
+    const [targetWinCount, setTargetWinCount] = useState("10");
     const [calculating, setCalculating] = useState(false);
+    const [chartInfo, setChartInfo] = useState(null); // 차트 정보 상태 추가
 
-    const p = useMemo(() => probPercent / 100, [probPercent]);
-    const pBatch = useMemo(() => 1 - Math.pow(1 - p, batchSize), [p, batchSize]);
+    // 입력된 확률을 소수점으로 변환
+    const p = useMemo(() => {
+        // 입력값을 항상 비율로 처리
+        return Number(probPercent) / 100;
+    }, [probPercent]);
 
     // 계산이 무거울 때 사용할 제한값
-    const MAX_SAFE_COMPUTATION = 10000;
-    const COMPUTATION_WARNING_THRESHOLD = 5000;
+    const MAX_SAFE_COMPUTATION = 1000000000;  // 최대 계산 범위 증가
+    const COMPUTATION_WARNING_THRESHOLD = 10000;
 
     // 안전한 계산 체크
     const isHeavyComputation = useCallback(() => {
         // 매우 낮은 확률에 높은 목표 당첨 횟수
         return isMultipleWin &&
-            targetWinCount > 10 &&
-            pBatch < 0.01 &&
-            (targetWinCount / pBatch) > COMPUTATION_WARNING_THRESHOLD;
-    }, [isMultipleWin, targetWinCount, pBatch]);
+            targetWinCount > 100 &&
+            p < 0.01 &&
+            (targetWinCount / p) > COMPUTATION_WARNING_THRESHOLD;
+    }, [isMultipleWin, targetWinCount, p]);
 
     const calculateOptimalAttempts = useCallback(() => {
         if (isHeavyComputation()) {
             return MAX_SAFE_COMPUTATION;
         }
 
-        // 모든 경우에 공통으로 95% 확률 계산한 뒤 1.2배
-        const n95 = findAttemptsForProbOptimized(0.95, p, batchSize, isMultipleWin, targetWinCount, 99900);
-        return Math.min(Math.ceil(n95 * 1.2), 99900);
+        // 매우 낮은 확률에 대한 특별 처리
+        if (p < 0.0001) {
+            // 단일 당첨 모델
+            if (!isMultipleWin) {
+                // 기대값의 약 10배 (더 넓은 범위 확보)
+                return Math.min(Math.ceil(10 / (p * batchSize)), MAX_SAFE_COMPUTATION);
+            } else {
+                // 복수 당첨 모델
+                // 목표 성공 횟수를 달성하기 위한 기대 시도 횟수의 약 10배
+                return Math.min(Math.ceil(10 * targetWinCount / (p * batchSize)), MAX_SAFE_COMPUTATION);
+            }
+        }
+
+        // 모든 경우에 공통으로 99% 확률을 충분히 보기 위한 범위 사용
+        const n99 = findAttemptsForProbOptimized(0.99, p, batchSize, isMultipleWin, targetWinCount, MAX_SAFE_COMPUTATION);
+        return Math.min(Math.ceil(n99 * 1.5), MAX_SAFE_COMPUTATION);
     }, [p, batchSize, isMultipleWin, targetWinCount]);
 
     // 계산 함수
     const handleCalculate = useCallback(() => {
         // 문자열 상태를 숫자로 변환
-        const prob = Number(probPercent);
+        const inputProb = Number(probPercent);
         const c = Number(cost);
         const batch = Number(batchSize);
         const target = Number(targetWinCount);
 
+        // 유효성 검사
         if (
-            isNaN(prob) || prob <= 0 || prob > 100 ||
+            isNaN(inputProb) || inputProb <= 0 ||
             isNaN(c) || c <= 0 ||
             isNaN(batch) || batch <= 0 ||
             (isMultipleWin && (isNaN(target) || target < 1))
@@ -247,7 +290,6 @@ function App() {
         // 계산 시작
         setCalculating(true);
 
-
         // 비동기로 처리하여 UI 블록 방지
         setTimeout(() => {
             try {
@@ -256,50 +298,105 @@ function App() {
                     alert("계산량이 매우 큽니다. 결과가 근사치로 제공되거나 일부 데이터가 제한될 수 있습니다.");
                 }
 
-                const newMaxAttempts = calculateOptimalAttempts();
-                setDynamicMaxAttempts(newMaxAttempts);
+                // 최적 시도 횟수 계산 (배치 단위)
+                const newMaxBatches = calculateOptimalAttempts();
+                setDynamicMaxAttempts(newMaxBatches);
 
-                const samplePoints = Math.min(200, newMaxAttempts); // 그래프 데이터 포인트 제한
-                const step = Math.max(1, Math.floor(newMaxAttempts / samplePoints));
+                // 그래프 데이터 포인트 수 결정 (너무 많은 포인트는 성능에 영향)
+                const maxDataPoints = 100;
+                const step = Math.max(1, Math.floor(newMaxBatches / maxDataPoints));
 
                 const labels = [];
                 const probData = [];
+                let maxProbForScaling = 0; // 최대 확률값 추적
 
-                // 그래프 데이터 포인트 샘플링
-                for (let n = 1; n <= newMaxAttempts; n += step) {
+                // 그래프 데이터 포인트 샘플링 (배치 단위로)
+                for (let n = 1; n <= newMaxBatches; n += step) {
                     let prob;
                     if (isMultipleWin) {
-                        prob = cumulativeProbabilityAtLeastK(n, targetWinCount, pBatch);
+                        // 복수 당첨 모델: n개 배치에서 targetWinCount 이상 성공할 확률
+                        prob = calculateProbabilityForMultipleWins(n, p, batch, target);
                     } else {
+                        // 단일 당첨 모델 (기존 방식)
+                        const pBatch = 1 - Math.pow(1 - p, batch);
                         prob = 1 - Math.pow(1 - pBatch, n);
                     }
+
+                    // NaN 값 방지
+                    if (isNaN(prob)) {
+                        prob = 0;
+                    }
+
+                    // 최대 확률 업데이트
+                    maxProbForScaling = Math.max(maxProbForScaling, prob);
+
                     labels.push(n);
-                    probData.push((prob * 100).toFixed(2));
+                    probData.push((prob * 100).toFixed(4)); // 정밀도 증가
                 }
 
                 // 마지막 포인트 추가 (최대값)
-                if (labels[labels.length - 1] !== newMaxAttempts) {
+                if (labels[labels.length - 1] !== newMaxBatches) {
                     let prob;
                     if (isMultipleWin) {
-                        prob = cumulativeProbabilityAtLeastK(newMaxAttempts, targetWinCount, pBatch);
+                        prob = calculateProbabilityForMultipleWins(newMaxBatches, p, batch, target);
                     } else {
-                        prob = 1 - Math.pow(1 - pBatch, newMaxAttempts);
+                        const pBatch = 1 - Math.pow(1 - p, batch);
+                        prob = 1 - Math.pow(1 - pBatch, newMaxBatches);
                     }
-                    labels.push(newMaxAttempts);
-                    probData.push((prob * 100).toFixed(2));
+
+                    // NaN 값 방지
+                    if (isNaN(prob)) {
+                        prob = 0;
+                    }
+
+                    // 최대 확률 업데이트
+                    maxProbForScaling = Math.max(maxProbForScaling, prob);
+
+                    labels.push(newMaxBatches);
+                    probData.push((prob * 100).toFixed(4)); // 정밀도 증가
                 }
 
-                // 주요 통계치 계산
-                const n20 = findAttemptsForProbOptimized(0.2, p, batchSize, isMultipleWin, targetWinCount, newMaxAttempts);
-                const n63 = findAttemptsForProbOptimized(0.6321, p, batchSize, isMultipleWin, targetWinCount, newMaxAttempts);
-                const n80 = findAttemptsForProbOptimized(0.8, p, batchSize, isMultipleWin, targetWinCount, newMaxAttempts);
+                // 확률이 매우 낮을 때 적응형 y축 스케일 추가
+                const maxYScale = maxProbForScaling < 0.1
+                    ? Math.ceil(maxProbForScaling * 100 * 1.2)
+                    : 100;
 
+
+                // 주요 통계치 계산
+                const n20 = findAttemptsForProbOptimized(0.2, p, batch, isMultipleWin, target, newMaxBatches);
+                const n63 = findAttemptsForProbOptimized(0.6321, p, batch, isMultipleWin, target, newMaxBatches);
+                const n80 = findAttemptsForProbOptimized(0.8, p, batch, isMultipleWin, target, newMaxBatches);
+
+                // 차트 정보 텍스트 업데이트
+                setChartInfo({
+                    isMultipleWin,
+                    targetWinCount: target,
+                    probability: (() => {
+                        const raw = p * 100;
+                        let fixed =
+                            raw < 0.001 ? raw.toFixed(6) :
+                                raw < 0.01 ? raw.toFixed(4) :
+                                    raw.toFixed(2);
+                        return fixed.replace(/\\.?(0)+$/, "");  // 소수점 이하 0 제거
+                    })(),
+                    dynamicMaxAttempts: newMaxBatches,
+                    batchSize: batch,
+                    maxYScale
+                });
+
+                // 통계 설정
                 setStats({
-                    n20: { n: n20, cost: (n20 * cost).toLocaleString() },
-                    n63: { n: n63, cost: (n63 * cost).toLocaleString() },
-                    n80: { n: n80, cost: (n80 * cost).toLocaleString() },
-                    pBatchPercent: (pBatch * 100).toFixed(2),
-                    batchSize,
+                    n20: { n: n20, cost: (n20 * c).toLocaleString() },
+                    n63: { n: n63, cost: (n63 * c).toLocaleString() },
+                    n80: { n: n80, cost: (n80 * c).toLocaleString() },
+                    pIndividual: p, // 개별 시행당 당첨 확률
+                    pPercent: ((str => str.replace(/\.?0+$/, ""))((p * 100).toFixed(p < 0.01 ? 6 : 2))),
+                    batchSize: batch,
+                    totalTrials: {
+                        n20: n20 * batch,
+                        n63: n63 * batch,
+                        n80: n80 * batch
+                    }
                 });
 
                 setData({
@@ -307,14 +404,15 @@ function App() {
                     datasets: [
                         {
                             label: isMultipleWin
-                                ? `${targetWinCount}회 이상 당첨 확률 (%)`
-                                : "1회 이상 당첨 확률 (%)",
+                                ? `${target}회 이상 당첨 확률 (%)`
+                                : "당첨 확률 (%)",
                             data: probData,
                             borderColor: "rgba(75,192,192,1)",
                             backgroundColor: "rgba(75,192,192,0.2)",
                             fill: true,
                         },
                     ],
+                    maxYScale // 최대 Y축 값 추가
                 });
             } catch (error) {
                 console.error("계산 중 오류 발생:", error);
@@ -323,43 +421,87 @@ function App() {
                 setCalculating(false);
             }
         }, 100);
-    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin]);
-
-    // 자동 계산 제거 (useEffect 제거)
+    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin, p]);
 
     // 페이지 로드 시 초기 계산 수행
     useEffect(() => {
         handleCalculate();
     }, []); // 컴포넌트 마운트 시 한 번만 실행
 
+    // 개선된 차트 옵션 - x축 큰 숫자 표시 문제 해결
     const chartOptions = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
         animation: {
-            duration: 1000 // 애니메이션 활성화 (1초)
+            duration: 500 // 애니메이션 시간 단축
         },
         scales: {
             y: {
                 min: 0,
-                max: 100,
+                max: chartInfo?.maxYScale || 100, // 적응형 Y축 스케일링
                 title: { display: true, text: "확률 (%)" },
-                ticks: { callback: (v) => `${v}%` },
+                ticks: {
+                    callback: (v) => `${v}%`,
+                    precision: 6 // 소수점 정밀도 증가
+                },
             },
             x: {
                 min: 1,
-                max: dynamicMaxAttempts,
-                title: { display: true, text: "시행 횟수 (n)" },
+                max: chartInfo?.dynamicMaxAttempts,
+                title: { display: true, text: "시행 횟수" },
+                // 중요! x축이 실제 값을 표시하도록 설정
+                type: 'linear',
+                position: 'bottom',
+                ticks: {
+                    // 틱 간격을 사용자 정의
+                    callback: function(value) {
+                        // 값이 너무 크면 지수 표기법으로 변환
+                        if (value >= 1e6) {
+                            return value.toExponential(1).replace(/e\+?/, 'e');
+                        } else if (value >= 1e3) {
+                            // 천 단위 이상이면 K, M 접미사 사용
+                            return (value / 1e3).toFixed(0) + 'K';
+                        }
+                        return value;
+                    },
+                    // 큰 데이터셋에 대해 표시할 틱 수 조정
+                    maxTicksLimit: 8,
+                    // 이 옵션이 중요: 실제 데이터 값에 따라 자동 스케일링
+                    source: 'auto',
+                },
             },
         },
         plugins: {
             tooltip: {
                 callbacks: {
-                    title: (context) => `시행 횟수: ${context[0].label}`,
-                    label: (context) => `확률: ${context.formattedValue}%`
+                    title: (context) => {
+                        const rawX = context[0]?.parsed?.x ?? context[0]?.label ?? 0;
+                        const xValue = typeof rawX === 'number' ? rawX : Number(String(rawX).replace(/[^\\d.]/g, '')); // 숫자 추출
+                        if (isNaN(xValue)) return "시행 횟수: (불명확)";
+
+                        const formattedValue = formatNumber(xValue);
+                        const countDesc = Number(batchSize) > 1
+                            ? ` 세트 (총 ${formatNumber(xValue * Number(batchSize))}회)`
+                            : '회';
+
+                        return `시행 횟수: ${formattedValue}${countDesc}`;
+                    },
+                    label: (context) => {
+                        // 매우 작은 값일 경우 정밀도 높게 표시
+                        const value = parseFloat(context.formattedValue);
+                        if (value < 0.01) {
+                            return `확률: ${value.toFixed(6)}%`;
+                        }
+                        return `확률: ${context.formattedValue}%`;
+                    }
                 }
-            }
+            },
+            legend: {
+                display: true,
+                position: 'top',
+            },
         }
-    }), [dynamicMaxAttempts]);
+    }), [batchSize, chartInfo?.maxYScale,chartInfo?.dynamicMaxAttempts]);
 
     return (
         <div className="app-container">
@@ -368,9 +510,14 @@ function App() {
                 {data && (
                     <div className="chart-wrapper">
                         <Line data={data} options={chartOptions} />
-                        <div className="chart-info">
-                            (그래프는 {isMultipleWin ? `목표 ${targetWinCount}회` : `확률 ${probPercent}%`}에 최적화된 {dynamicMaxAttempts}회 시행까지 표시됩니다)
-                        </div>
+                        {chartInfo && (
+                            <div className="chart-info">
+                                그래프는 {chartInfo.isMultipleWin ? `목표 ${chartInfo.targetWinCount}회` : `확률 ${chartInfo.probability}%`}에 최적화된 <br />
+                                {formatNumber(chartInfo.dynamicMaxAttempts)}회 시행
+                                {chartInfo.batchSize > 1 ? ` (총 ${formatNumber(chartInfo.dynamicMaxAttempts * chartInfo.batchSize)}회 뽑기)` : ''}
+                                까지 표시됩니다.
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -378,7 +525,7 @@ function App() {
             <div className="right-panel">
                 <div className="input-controls">
                     <div className="input-group">
-                        <label htmlFor="prob-percent">당첨 확률 (%)</label>
+                        <label htmlFor="prob-percent">당첨 확률(%)</label>
                         <input
                             id="prob-percent"
                             type="text"
@@ -402,7 +549,7 @@ function App() {
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="batch-size">시행 당 뽑는 개수</label>
+                        <label htmlFor="batch-size">한 번에 뽑는 개수</label>
                         <input
                             id="batch-size"
                             type="text"
@@ -421,7 +568,7 @@ function App() {
                                 onChange={() => setIsMultipleWin(!isMultipleWin)}
                                 disabled={calculating}
                             />
-                            목표 당첨 횟수
+                            목표 당첨 횟수 설정
                         </label>
                     </div>
 
@@ -448,13 +595,13 @@ function App() {
                     <div className="stats-section">
                         <h2>요구 시행횟수 및 비용</h2>
                         <div className="batch-info">
-                            <p><strong>1회 시도 시 뽑는 개수:</strong> {stats.batchSize}개</p>
-                            <p><strong>시행당 당첨 확률:</strong> {stats.pBatchPercent}%</p>
+                            <p><strong>한 번에 뽑는 개수:</strong> {stats.batchSize}개</p>
+                            <p><strong>당첨 확률:</strong> {stats.pPercent}%</p>
                         </div>
                         <ul className="stats-list">
-                            <li>상위 20% <strong>{stats.n20.n}회, 총 {stats.n20.cost}</strong></li>
-                            <li>평균 63.2% <strong>{stats.n63.n}회, 총 {stats.n63.cost}</strong></li>
-                            <li>상위 80% <strong>{stats.n80.n}회, 총 {stats.n80.cost}</strong></li>
+                            <li>상위 20% <strong>{formatNumber(stats.n20.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n20)}회)` : ''}, 비용 {stats.n20.cost}</strong></li>
+                            <li>평균 63.2% <strong>{formatNumber(stats.n63.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n63)}회)` : ''}, 비용 {stats.n63.cost}</strong></li>
+                            <li>상위 80% <strong>{formatNumber(stats.n80.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n80)}회)` : ''}, 비용 {stats.n80.cost}</strong></li>
                         </ul>
                     </div>
                 )}

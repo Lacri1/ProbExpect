@@ -1,8 +1,9 @@
 # ProbExpect - Probability Expectation Calculator
 
 **ProbExpect** is a simple web-based calculator for estimating the expected cost and number of attempts required to achieve at least one success in probabilistic scenarios with replacement — such as gacha pulls in games.  
-Check this link: [https://lacri1.github.io/ProbExpect/](https://lacri1.github.io/ProbExpect/)
+link: [https://lacri1.github.io/ProbExpect/](https://lacri1.github.io/ProbExpect/)
 
+---
 
 ## Purpose
 
@@ -13,12 +14,39 @@ This tool was built to make it easier to understand and calculate expected value
 - You want to know how many trials it typically takes to succeed
 - You want to estimate how much it will cost to reach a certain probability of success
 
+---
+
 ## Features
 
 - Input success probability, cost per attempt, and number of items drawn per trial
-- Calculates and visualizes cumulative success probability
-- Provides key statistics:
-    - Attempts and cost for 20% success rate (top 20%)
-    - Attempts and cost for 63.2% success rate (average case)
-    - Attempts and cost for 80% success rate (top 80%)
-- Optimized probability chart that scales based on input probability
+- Option to set a target number of successes to calculate probability of multiple wins
+- Calculates and visualizes cumulative success probability over a range of attempts
+- Provides key statistics for attempts and cost at:
+  - 20% success probability (top 20%)
+  - 63.2% success probability (average expected case)
+  - 80% success probability (top 80%)
+- Optimized adaptive probability chart scaling based on input probability and target
+- Displays results with formatted numbers (including exponential notation for large values)
+- Responsive and interactive chart with detailed tooltips
+
+---
+
+## Usage
+
+1. Enter the success probability per single attempt (in %).
+2. Enter the cost per attempt.
+3. Specify the number of items drawn per trial (batch size).
+4. (Optional) Check "목표 당첨 횟수 설정" to set a target number of successes.
+5. Click the **계산하기 (Calculate)** button to view the probability graph and statistics.
+6. Review the graph and key stats to understand expected attempts and costs.
+
+---
+
+## Implementation Details
+
+- Built with React using functional components and hooks.
+- Uses memoization and callbacks to optimize performance on heavy computations.
+- Provides warnings for large computations to avoid UI blocking.
+- Probability calculations consider both single and multiple win scenarios.
+- Chart.js (via `react-chartjs-2`) used for rendering the probability graph with custom tooltip formatting.
+

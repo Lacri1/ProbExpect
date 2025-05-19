@@ -487,12 +487,13 @@ function App() {
                         return `시행 횟수: ${formattedValue}${countDesc}`;
                     },
                     label: (context) => {
-                        // 매우 작은 값일 경우 정밀도 높게 표시
                         const value = parseFloat(context.formattedValue);
                         if (value < 0.01) {
-                            return `확률: ${value.toFixed(6)}%`;
+                            // 아주 작은 값은 4자리까지 표시하고 싶으면 이렇게 (선택사항)
+                            return `확률: ${value.toFixed(4)}%`;
                         }
-                        return `확률: ${context.formattedValue}%`;
+                        // 일반 값은 무조건 2자리로 고정
+                        return `확률: ${value.toFixed(2)}%`;
                     }
                 }
             },
@@ -512,11 +513,16 @@ function App() {
                         <Line data={data} options={chartOptions} />
                         {chartInfo && (
                             <div className="chart-info">
-                                그래프는 {chartInfo.isMultipleWin ? `목표 ${chartInfo.targetWinCount}회` : `확률 ${chartInfo.probability}%`}에 최적화된 <br />
-                                {formatNumber(chartInfo.dynamicMaxAttempts)}회 시행
-                                {chartInfo.batchSize > 1 ? ` (총 ${formatNumber(chartInfo.dynamicMaxAttempts * chartInfo.batchSize)}회 뽑기)` : ''}
+                                그래프는 {chartInfo.isMultipleWin
+                                ? `목표 ${chartInfo.targetWinCount}회`
+                                : `확률 ${chartInfo.probability}%`}에 최적화된 <br />
+                                {formatNumber(chartInfo.dynamicMaxAttempts)} {chartInfo.batchSize > 1 ? '세트' : '회'}
+                                {chartInfo.batchSize > 1
+                                    ? ` (총 ${formatNumber(chartInfo.dynamicMaxAttempts * chartInfo.batchSize)}회 뽑기)`
+                                    : ''}
                                 까지 표시됩니다.
                             </div>
+
                         )}
                     </div>
                 )}
@@ -606,10 +612,26 @@ function App() {
                             </p>
                         </div>
                         <ul className="stats-list">
-                            <li>상위 20% <strong>{formatNumber(stats.n20.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n20)}회)` : ''}, 비용 {stats.n20.cost}</strong></li>
-                            <li>평균 63.2% <strong>{formatNumber(stats.n63.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n63)}회)` : ''}, 비용 {stats.n63.cost}</strong></li>
-                            <li>상위 80% <strong>{formatNumber(stats.n80.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n80)}회)` : ''}, 비용 {stats.n80.cost}</strong></li>
+                            <li>
+                                상위 20% <strong>
+                                {formatNumber(stats.n20.n)} {stats.batchSize > 1 ? '세트' : '회'}{' '}
+                                {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n20)}회)` : ''}, 비용 {stats.n20.cost}
+                            </strong>
+                            </li>
+                            <li>
+                                평균 63.2% <strong>
+                                {formatNumber(stats.n63.n)} {stats.batchSize > 1 ? '세트' : '회'}{' '}
+                                {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n63)}회)` : ''}, 비용 {stats.n63.cost}
+                            </strong>
+                            </li>
+                            <li>
+                                상위 80% <strong>
+                                {formatNumber(stats.n80.n)} {stats.batchSize > 1 ? '세트' : '회'}{' '}
+                                {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n80)}회)` : ''}, 비용 {stats.n80.cost}
+                            </strong>
+                            </li>
                         </ul>
+
                     </div>
                 )}
             </div>

@@ -215,9 +215,9 @@ const formatNumber = (num) => {
 };
 
 function App() {
-    const [probPercent, setProbPercent] = useState("0.7");  // 기본값을 더 작은 값으로 변경
+    const [probPercent, setProbPercent] = useState("3");  // 기본값
     const [cost, setCost] = useState("2700");
-    const [batchSize, setBatchSize] = useState("1");
+    const [batchSize, setBatchSize] = useState("10");
     const [data, setData] = useState(null);
     const [stats, setStats] = useState(null);
     const [dynamicMaxAttempts, setDynamicMaxAttempts] = useState(100000);  // 기본 최대 시도 횟수 증가

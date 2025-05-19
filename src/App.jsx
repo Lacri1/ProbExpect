@@ -596,7 +596,12 @@ function App() {
                         <h2>요구 시행횟수 및 비용</h2>
                         <div className="batch-info">
                             <p><strong>한 번에 뽑는 개수:</strong> {stats.batchSize}개</p>
-                            <p><strong>당첨 확률:</strong> {stats.pPercent}%</p>
+                            <p>
+                                <strong>1개 이상 당첨 확률:</strong>{" "}
+                                {stats.batchSize === 1
+                                    ? `${stats.pPercent}%`
+                                    : `${((1 - Math.pow(1 - stats.pPercent / 100, stats.batchSize)) * 100).toFixed(6)}%`}
+                            </p>
                         </div>
                         <ul className="stats-list">
                             <li>상위 20% <strong>{formatNumber(stats.n20.n)}회 {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n20)}회)` : ''}, 비용 {stats.n20.cost}</strong></li>

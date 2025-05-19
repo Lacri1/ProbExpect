@@ -600,7 +600,9 @@ function App() {
                                 <strong>1개 이상 당첨 확률:</strong>{" "}
                                 {stats.batchSize === 1
                                     ? `${stats.pPercent}%`
-                                    : `${((1 - Math.pow(1 - stats.pPercent / 100, stats.batchSize)) * 100).toFixed(6)}%`}
+                                    : `${Number(
+                                        ((1 - Math.pow(1 - stats.pPercent / 100, stats.batchSize)) * 100).toFixed(10)
+                                    )}%`}
                             </p>
                         </div>
                         <ul className="stats-list">

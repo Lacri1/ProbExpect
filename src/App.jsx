@@ -363,14 +363,14 @@ const formatNumber = (num) => {
 
 
 function App() {
-    const [probPercent, setProbPercent] = useState("0.5");  // 기본값
+    const [probPercent, setProbPercent] = useState("0.6");  // 기본값
     const [cost, setCost] = useState("1000");
     const [batchSize, setBatchSize] = useState("10");
     const [data, setData] = useState(null);
     const [stats, setStats] = useState(null);
     const [dynamicMaxAttempts, setDynamicMaxAttempts] = useState(180);  // 기본 최대 시도 횟수 (예시 값)
     const [isMultipleWin, setIsMultipleWin] = useState(false); // 예시: 기본값 false
-    const [targetWinCount, setTargetWinCount] = useState("3"); // 예시: 기본값 3
+    const [targetWinCount, setTargetWinCount] = useState("10"); // 예시: 기본값 10
     const [calculating, setCalculating] = useState(false);
     const [chartInfo, setChartInfo] = useState(null); // 차트 정보 상태 추가
     // 천장 시스템 관련 상태 추가

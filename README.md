@@ -28,6 +28,7 @@ This tool was built to make it easier to understand and calculate expected value
 - Optimized adaptive probability chart scaling based on input probability and target
 - Displays results with formatted numbers (including exponential notation for large values)
 - Responsive and interactive chart with detailed tooltips
+- Added ceiling system logic based on Monte Carlo simulation to support scenarios with guaranteed success after a fixed number of attempts
 
 ---
 
@@ -49,4 +50,4 @@ This tool was built to make it easier to understand and calculate expected value
 - Provides warnings for large computations to avoid UI blocking.
 - Probability calculations consider both single and multiple win scenarios.
 - Chart.js (via `react-chartjs-2`) used for rendering the probability graph with custom tooltip formatting.
-
+- Monte Carlo simulation is used to support ceiling mechanics, enabling more realistic modeling of systems with pity counters.

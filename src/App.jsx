@@ -875,9 +875,9 @@ function App() {
                             <span className="help-container">
                                 <span className="help-icon">?</span>
                                 <div className="input-help tooltip">
-                                    지정한 횟수({formatNumber(Number(pityCount))}회 시도)마다 무조건 당첨됩니다.<br/>
-                                    목표 당첨 횟수 설정 시, 각 당첨마다 지정된 천장 횟수만큼 시도하면 무조건 당첨됩니다.<br/>
-                                    참고: 천장 시스템 사용 시 몬테카를로 시뮬레이션 방식으로 계산되며, 시행 횟수가 적을 경우 오차가 발생할 수 있습니다.
+                                    지정한 횟수({formatNumber(Number(pityCount))}회)마다 당첨됩니다.<br/>
+                                    몬테카를로 시뮬레이션 방식으로 계산되며, 시행 횟수가 적을 경우 오차가 발생할 수 있습니다.<br/>
+                                    ※ 시뮬레이션 복잡도로 인해 계산 시간이 길어질 수 있습니다.
                                 </div>
                             </span>
                         )}

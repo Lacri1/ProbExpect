@@ -696,7 +696,7 @@ function App() {
                 }
             },
             x: {
-                min: 0, // X축 시작을 0 또는 1로 설정 (데이터에 따라)
+                min: 1,
                 max: chartInfo?.dynamicMaxAttempts,
                 title: { display: true, text: "시행 횟수 (세트)" }, // X축 라벨 변경
                 // 중요! x축이 실제 값을 표시하도록 설정

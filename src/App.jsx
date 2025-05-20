@@ -780,13 +780,13 @@ function App() {
                                         <p>
                                             천장 시스템: {formatNumber(chartInfo.pityInfo.pityCount)}회 시도 후 확정 당첨
                                             {chartInfo.pityInfo.batchesForPity != null && ` (${formatNumber(chartInfo.pityInfo.batchesForPity)}회 구매)`}
+                                            {chartInfo.isMultipleWin && chartInfo.pityInfo.confirmWinsAtMaxAttempts != null && (
+                                                <>
+                                                    <br/>{`최대 시도 (${formatNumber(chartInfo.dynamicMaxAttempts)} 세트)에서 천장 확정 당첨:
+                                                    최소 ${formatNumber(chartInfo.pityInfo.confirmWinsAtMaxAttempts)}회`}
+                                                </>
+                                            )}
                                         </p>
-                                        {chartInfo.isMultipleWin && chartInfo.pityInfo.confirmWinsAtMaxAttempts != null && (
-                                            <p>
-                                                {`최대 시도 (${formatNumber(chartInfo.dynamicMaxAttempts)} 세트)에서 천장 확정 당첨:
-                                                최소 ${formatNumber(chartInfo.pityInfo.confirmWinsAtMaxAttempts)}회`}
-                                            </p>
-                                        )}
                                     </div>
                                 )}
                             </div>

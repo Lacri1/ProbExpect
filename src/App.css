@@ -382,12 +382,17 @@
     gap: 20px;
   }
 
-  .graph-section, .right-panel {
+  .graph-section {
     width: 100%;
+    margin-bottom: 30px; /* 하단 마진 추가 */
+  }
+
+  .right-panel {
+    width: 100%;
+    padding-top: 50px; /* 상단 패딩 추가 */
   }
 
   .chart-wrapper {
-    height: 300px;
     padding-right: 1em;
   }
 

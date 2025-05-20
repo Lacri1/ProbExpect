@@ -83,19 +83,26 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* 입력 그룹 스타일 */
 .input-group {
-  margin-bottom: 14px;
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 .input-group label {
-  flex: 2;
+  flex-shrink: 0;
   font-weight: 500;
   color: #555;
+  margin-right: 15px;
+  width: 120px;
+  text-align: left;
 }
 
 /* 체크박스를 포함한 라벨 스타일링 */
@@ -105,6 +112,13 @@
   width: 16px;
   height: 16px;
   vertical-align: middle;
+}
+
+/* 체크박스 그룹의 라벨은 너비 고정을 해제하고 내용물에 맞게 자동 조정 */
+.input-group.checkbox-group label {
+  width: auto;
+  min-width: 0;
+  flex-grow: 1;
 }
 
 /* 토글 체크박스 스타일링 */
@@ -120,6 +134,9 @@
   position: relative;
   margin-right: 10px;
   transition: all 0.2s;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-top: -2px;
 }
 
 .input-group input[type="checkbox"]:checked {
@@ -157,6 +174,10 @@
   transition: all 0.2s;
   color: #333;
   background-color: #fff;
+  flex-grow: 1;
+  width: auto;
+  max-width: 120px;
+  text-align: right;
 }
 
 .input-number:focus {
@@ -169,6 +190,77 @@
   opacity: 0.7;
   background-color: #f5f5f5;
   cursor: not-allowed;
+}
+
+/* 도움말 컨테이너 스타일 */
+.help-container {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* 도움말 아이콘 스타일 */
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #4bc0c0;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: help;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.help-icon:hover {
+  background-color: #36a1a1;
+}
+
+/* 도움말 툴팁 스타일 */
+.input-help.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: 250px;
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -125px;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* 툴팁 말풍선 꼬리 */
+.input-help.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* 호버 시 툴팁 표시 */
+.help-container:hover .input-help.tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* 계산 버튼 */
@@ -301,8 +393,8 @@
   .graph-section h1 {
     font-size: 2.5em;
     text-align: center;
-    display: block;       /* inline-block을 block으로 덮어쓰기 */
-    margin: 0 auto;       /* 수평 가운데 정렬 */
+    display: block;
+    margin: 0 auto;
   }
 }
 

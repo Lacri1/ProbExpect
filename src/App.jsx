@@ -696,30 +696,17 @@ function App() {
                 }
             },
             x: {
-                min: 1,
+                min: 0, // X축 시작을 다시 0으로 설정
                 max: chartInfo?.dynamicMaxAttempts,
                 title: { display: true, text: "시행 횟수 (세트)" }, // X축 라벨 변경
-                // 중요! x축이 실제 값을 표시하도록 설정
+                // 중요: 틱 간격을 1로 설정하여 정수만 표시
                 type: 'linear',
                 position: 'bottom',
                 ticks: {
-                    // 틱 간격을 사용자 정의
+                    // 틱 간격을 1로 설정하여 정수만 표시
                     callback: function(value) {
-                        // 값이 너무 크면 지수 표기법으로 변환
-                        if (value >= 1e6) {
-                            return value.toExponential(1).replace(/e\+?/, 'e');
-                        } else if (value >= 1e3) {
-                            // 천 단위 이상이면 K 접미사 사용
-                            return (value / 1e3).toFixed(0) + 'K';
-                        }
-                        return value;
+                        return value.toString();
                     },
-                    // 큰 데이터셋에 대해 표시할 틱 수 조정
-                    maxTicksLimit: 10, // 틱 개수 증가
-                    // 이 옵션이 중요: 실제 데이터 값에 따라 자동 스케일링
-                    source: 'auto',
-                    // 틱에 대한 간격 설정 (선택 사항, 필요시 주석 해제 및 조정)
-                    // stepSize: chartInfo?.dynamicMaxAttempts > 1000 ? Math.floor(chartInfo?.dynamicMaxAttempts / 10) : undefined,
                 },
                 grid: {
                     color: 'rgba(200, 200, 200, 0.2)', // 그리드 색상 연하게

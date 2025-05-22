@@ -1,3 +1,20 @@
+:root {
+  --primary-color: #4bc0c0;
+  --secondary-color: #36a1a1;
+  --text-color-dark: #333;
+  --text-color-light: #e0e0e0;
+  --background-light: #f8f9fa;
+  --background-medium: #f9fcfc;
+  --background-dark: #242424;
+  --background-dark-alt: #2a2e31;
+  --background-dark-alt-2: #2d3436;
+  --border-color-light: #e0e0e0;
+  --border-color-dark: #444;
+  --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --box-shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --box-shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -10,7 +27,7 @@ body {
   line-height: 1.5;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--background-dark);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,10 +42,10 @@ body {
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
   Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   text-align: center;
-  background-color: #f8f9fa;
+  background-color: var(--background-light);
   background-image: linear-gradient(135deg, #f5f7fa 0%, #e4eaec 100%);
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow-medium);
 }
 
 /* 전체 레이아웃: 좌우로 나눠서 보여줌 */
@@ -40,9 +57,9 @@ body {
   gap: 30px;
   justify-content: space-between;
   flex-wrap: nowrap;
-  background-color: white;
+  background-color: white; /* Assuming white background is intended even in dark mode for this specific container */
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--box-shadow-light);
 }
 
 /* 왼쪽 그래프 영역 */
@@ -57,9 +74,9 @@ body {
 
 .graph-section h1 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--text-color-dark);
   font-weight: 700;
-  border-bottom: 3px solid #4bc0c0;
+  border-bottom: 3px solid var(--primary-color);
   padding-bottom: 8px;
   display: inline-block;
 }
@@ -74,10 +91,10 @@ body {
 
 /* 차트 영역 - 높이 제한 추가 */
 .chart-wrapper {
-  background-color: white;
+  background-color: white; /* Assuming white background is intended even in dark mode */
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--box-shadow-light);
   transition: all 0.3s ease;
   margin-bottom: 20px;
   height: 400px; /* 고정 높이 설정 */
@@ -93,12 +110,12 @@ body {
 }
 
 .chart-wrapper:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Keeping original hover shadow */
 }
 
 /* 입력 영역 전체를 감싸는 컨테이너 */
 .input-controls {
-  background-color: #f9fcfc;
+  background-color: var(--background-medium);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -119,7 +136,7 @@ body {
 .input-group label {
   flex-shrink: 0;
   font-weight: 500;
-  color: #555;
+  color: #555; /* Keeping original color */
   margin-right: 15px;
   width: 120px;
   text-align: left;
@@ -148,7 +165,7 @@ body {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border-color-light);
   border-radius: 4px;
   background-color: white;
   position: relative;
@@ -160,8 +177,8 @@ body {
 }
 
 .input-group input[type="checkbox"]:checked {
-  background-color: #4bc0c0;
-  border-color: #4bc0c0;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .input-group input[type="checkbox"]:checked::after {
@@ -176,7 +193,7 @@ body {
 
 .input-group input[type="checkbox"]:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25);
+  box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25); /* Keeping original focus shadow */
 }
 
 .input-group input[type="checkbox"]:disabled {
@@ -194,12 +211,12 @@ body {
 .input-number {
   width: 100px;
   padding: 8px 12px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border-color-light);
   border-radius: 6px;
   font-size: 16px;
   transition: all 0.2s;
-  color: #333;
-  background-color: #fff;
+  color: var(--text-color-dark);
+  background-color: #fff; /* Keeping white background */
   flex-grow: 1;
   width: auto;
   max-width: 120px;
@@ -207,14 +224,14 @@ body {
 }
 
 .input-number:focus {
-  border-color: #4bc0c0;
+  border-color: var(--primary-color);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25);
+  box-shadow: 0 0 0 2px rgba(75, 192, 192, 0.25); /* Keeping original focus shadow */
 }
 
 .input-number:disabled {
   opacity: 0.7;
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* Keeping original disabled background */
   cursor: not-allowed;
 }
 
@@ -235,7 +252,7 @@ body {
   width: 20px !important; /* Ensure width is applied */
   height: 20px !important; /* Ensure height is applied */
   border-radius: 50%;
-  background-color: #4bc0c0;
+  background-color: var(--primary-color);
   color: white;
   font-size: 14px;
   font-weight: bold;
@@ -249,7 +266,7 @@ body {
 }
 
 .help-icon:hover {
-  background-color: #36a1a1;
+  background-color: var(--secondary-color);
 }
 
 /* 도움말 툴팁 스타일 (PC 기본) */
@@ -257,7 +274,7 @@ body {
   visibility: hidden;
   opacity: 0;
   width: 250px; /* 고정 너비 */
-  background-color: #555;
+  background-color: #555; /* Keeping original tooltip background */
   color: #fff;
   text-align: left;
   border-radius: 6px;
@@ -266,7 +283,7 @@ body {
   z-index: 1000; /* 가장 위로 */
   box-sizing: border-box; /* 패딩 포함 너비 계산 */
   transition: opacity 0.3s ease; /* 부드러운 표시/숨김 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: var(--box-shadow-dark);
   font-size: 14px; /* 폰트 사이즈 */
   line-height: 1.6; /* 줄 간격 */
   white-space: normal;
@@ -339,75 +356,67 @@ body {
   .graph-section,
   .right-panel {
     width: 100%;
-    /* flex 속성 제거 - width 100%로 충분 */
   }
 
   /* 섹션 간 세로 여백 추가 */
    .graph-section {
-     margin-bottom: 30px; /* 그래프 섹션 아래 여백 */
-     padding-bottom: 1rem; /* 하단 패딩 유지 */
-     max-height: 70vh; /* 그래프 섹션 최대 높이 설정 (뷰포트 높이의 60%) */
-     overflow-y: auto; /* 내용 넘칠 시 세로 스크롤 */
+     margin-bottom: 30px;
+     padding-bottom: 1rem;
+     max-height: 70vh;
+     overflow-y: auto;
    }
 
    .right-panel {
-     padding-top: 20px; /* 오른쪽 패널 상단 여백 */
+     padding-top: 20px;
    }
 
   /* 메인 제목 중앙 정렬 */
   .graph-section h1 {
-    font-size: 2em; /* 모바일에서 글자 크기 조정 */
+    font-size: 2em;
     text-align: center;
     display: block;
-    margin: 0 auto 1rem auto; /* 하단 마진 추가 */
-    border-bottom-width: 2px; /* 경계선 두께 조정 */
+    margin: 0 auto 1rem auto;
+    border-bottom-width: 2px;
   }
 
   /* 차트 wrapper 높이 조정 및 패딩 */
   .chart-wrapper {
-    /* height: auto; */ /* 고정 높이 설정 */
-    height: 300px; /* 모바일에서 차트 wrapper의 고정 높이 설정 */
-    min-height: 0; /* min-height는 필요없음 */
-    /* max-height 제거 */
-    /* overflow 제거 */
-    padding: 10px; /* 패딩 조정 */
+    height: 300px;
+    padding: 10px;
   }
 
   /* 차트 정보 여백 조정 */
   .chart-info {
     margin-top: 20px;
     margin-bottom: 10px;
-    /* max-height: 100px; */ /* 필요시 차트 정보 영역 높이도 제한 가능 */
-    /* overflow: hidden; */ /* 필요시 차트 정보 영역 스크롤바 없이 숨김 */
   }
 
   /* 입력 컨트롤 영역 패딩 조정 */
   .input-controls {
-    padding: 15px; /* 패딩 조정 */
-    gap: 10px; /* 입력 그룹 간 간격 조정 */
+    padding: 15px;
+    gap: 10px;
   }
 
   /* 입력 그룹 레이아웃 개선: 줄 바꿈 허용 */
   .input-group {
-    flex-wrap: wrap; /* 줄 바꿈 허용 */
-    justify-content: flex-start; /* 왼쪽 정렬 */
-    align-items: flex-start; /* 세로 상단 정렬 */
-    gap: 5px; /* 라벨과 입력 필드 사이 간격 */
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 5px;
   }
 
   /* 입력 그룹 내 라벨 스타일 */
   .input-group label {
-    width: 100%; /* 라벨 전체 너비 사용 */
-    text-align: left; /* 왼쪽 정렬 */
-    margin-right: 0; /* 기존 마진 제거 */
+    width: 100%;
+    text-align: left;
+    margin-right: 0;
   }
 
    /* 체크박스 그룹 라벨은 기존 스타일 유지 (자동 너비) */
   .input-group.checkbox-group label {
     width: auto;
-    flex-grow: 1; /* 남은 공간 채우기 */
-     margin-right: 10px; /* 체크박스와 라벨 사이 간격 */
-     /* align-items: center; */
+    flex-grow: 1;
+     margin-right: 10px;
   }
 
   .input-group .checkbox-label {
@@ -415,7 +424,7 @@ body {
     margin-right: 0;
     margin-left: 5px;
     font-weight: normal;
-    color: #555;
+    color: #555; /* Keeping original color */
   }
 
   .input-group #pity-count {
@@ -427,57 +436,56 @@ body {
     margin-left: 10px;
   }
 
-  /* 입력 그룹 내 입력 필드 스타일 */
+  /* 입력 필드 모바일 스타일 */
   .input-number {
-    width: 100%; /* 입력 필드 전체 너비 사용 */
-    max-width: none; /* 최대 너비 제한 해제 */
-    text-align: left; /* 왼쪽 정렬 (필요시) */
+    width: 100%;
+    max-width: none;
+    text-align: left;
   }
 
    /* 도움말 컨테이너 위치 조정 */
    .help-container {
       margin-left: 0;
-      /* 필요한 경우 추가 위치 조정 */
    }
 
   /* 계산 버튼 마진 조정 */
   .btn-calc {
-    margin-top: 10px; /* 마진 조정 */
+    margin-top: 10px;
   }
 
   /* 통계 섹션 패딩 조정 */
   .stats-section {
-    padding: 1rem; /* 패딩 조정 */
+    padding: 1rem;
   }
 
   /* 배치 정보 및 통계 리스트 패딩/마진 조정 */
   .batch-info,
   .stats-list li {
-    padding: 10px; /* 패딩 조정 */
-    margin-bottom: 10px; /* 마진 조정 */
+    padding: 10px;
+    margin-bottom: 10px;
   }
 
   /* 도움말 툴팁 스타일 (모바일 - 팝업) */
   .input-help.tooltip {
-    width: calc(100% - 40px) !important; /* 너비 설정 (좌우 20px 여백) */
-    max-width: 400px !important; /* 최대 너비 제한 */
-    min-width: 200px; /* 모바일에서도 최소 너비 유지 */
-    left: 50% !important; /* 화면 중앙에 배치 */
-    right: auto !important; /* right 속성 초기화 */
-    top: 50% !important; /* 화면 중앙에 배치 */
-    bottom: auto !important; /* 하단 기준 위치 지정 무효화 */
+    width: calc(100% - 40px) !important;
+    max-width: 400px !important;
+    min-width: 200px;
+    left: 50% !important;
+    right: auto !important;
+    top: 50% !important;
+    bottom: auto !important;
     margin-left: 0;
-    transform: translate(-50%, -50%) !important; /* 중앙 정렬 변환 */
-    position: fixed !important; /* 화면에 고정 */
-    z-index: 1000 !important; /* 가장 위로 */
-    box-sizing: border-box; /* 패딩 포함 너비 계산 */
-    font-size: 14px; /* 폰트 사이즈 */
-    padding: 15px; /* 패딩 조정 */
+    transform: translate(-50%, -50%) !important;
+    position: fixed !important;
+    z-index: 1000 !important;
+    box-sizing: border-box;
+    font-size: 14px;
+    padding: 15px;
   }
 
   /* 모바일에서는 말풍선 꼬리 숨김 */
   .input-help.tooltip::after {
-    display: none !important; /* 팝업 형태이므로 꼬리 숨김 */
+    display: none !important;
   }
 
 }
@@ -485,73 +493,77 @@ body {
 /* 다크 모드 */
 @media (prefers-color-scheme: dark) {
   #root {
-    background-image: linear-gradient(135deg, #2d3436 0%, #1a1d1e 100%);
+    background-image: linear-gradient(135deg, var(--background-dark-alt-2) 0%, var(--background-dark) 100%);
     width:90%;
   }
 
   .app-container {
-    background-color: #2a2e31;
+    background-color: var(--background-dark-alt);
   }
 
   .graph-section h1, .stats-section h2 {
-    color: #e0e0e0;
-    border-bottom-color: #36a1a1;
+    color: var(--text-color-light);
+    border-bottom-color: var(--secondary-color);
   }
 
   .input-controls {
-    background-color: #2d3436;
+    background-color: var(--background-dark-alt-2);
   }
 
   .input-group label {
-    color: #ccc;
+    color: var(--text-color-light);
   }
 
   .input-number {
-    border-color: #444;
-    color: #e0e0e0;
-    background-color: #333;
+    border-color: var(--border-color-dark);
+    color: var(--text-color-light);
+    background-color: #333; /* Keeping original dark input background */
   }
 
   .input-number:focus {
-    border-color: #36a1a1;
+    border-color: var(--secondary-color);
   }
 
   .input-group input[type="checkbox"] {
-    border-color: #555;
-    background-color: #333;
+    border-color: #555; /* Keeping original dark checkbox border */
+    background-color: #333; /* Keeping original dark checkbox background */
   }
 
   .input-group input[type="checkbox"]:checked {
-    background-color: #36a1a1;
-    border-color: #36a1a1;
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
   }
 
   .chart-wrapper {
-    background-color: #2a2e31;
+    background-color: var(--background-dark-alt);
   }
 
   .chart-info {
-    color: #aaa;
+    color: #aaa; /* Keeping original dark info color */
   }
 
   .stats-section {
-    background-color: #2d3436 !important; /* 다크 모드 배경색 강제 적용 */
+    background-color: var(--background-dark-alt-2) !important;
   }
 
   .batch-info, .stats-list li {
-    background-color: #2a2e31 !important; /* 다크 모드 배경색 강제 적용 */
+    background-color: var(--background-dark-alt) !important;
   }
 
   .batch-info p {
-    color: #ccc !important; /* 다크 모드 글자색 강제 적용 */
+    color: #ccc !important;
   }
 
   .batch-info strong, .stats-list strong {
-    color: #e0e0e0 !important; /* 다크 모드 글자색 강제 적용 */
+    color: var(--text-color-light) !important;
   }
 
   .stats-result {
-    color: #ccc !important; /* 다크 모드 글자색 강제 적용 */
+    color: #ccc !important;
+  }
+
+  .stats-cost {
+    color: var(--secondary-color) !important;
   }
 }
 
@@ -562,7 +574,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.7); /* Keeping original overlay background */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -571,8 +583,8 @@ body {
 }
 
 .spinner {
-    border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #3498db; /* Blue */
+    border: 4px solid #f3f3f3; /* Keeping original spinner colors */
+    border-top: 4px solid #3498db;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -588,10 +600,10 @@ body {
 /* 통계 결과 영역 */
 .stats-section {
   text-align: left;
-  background-color: #f9fcfc; /* 배경색을 밝은 색으로 고정 */
+  background-color: var(--background-medium); /* 배경색을 밝은 색으로 고정 */
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--box-shadow-light);
   transition: all 0.3s ease;
   flex-grow: 1;
 }
@@ -599,27 +611,27 @@ body {
 .stats-section h2 {
   margin-bottom: 1.5rem;
   font-weight: 600;
-  border-bottom: 3px solid #4bc0c0;
+  border-bottom: 3px solid var(--primary-color);
   padding-bottom: 8px;
   display: inline-block;
 }
 
 /* 배치 정보 스타일 */
 .batch-info {
-  background-color: white;
+  background-color: white; /* Keeping white background */
   padding: 12px 15px;
   border-radius: 6px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Keeping original shadow */
 }
 
 .batch-info p {
   margin: 8px 0;
-  color: #555;
+  color: #555; /* Keeping original color */
 }
 
 .batch-info strong {
-  color: #333;
+  color: var(--text-color-dark);
   font-weight: 600;
 }
 
@@ -632,38 +644,38 @@ body {
 
 .stats-list li {
   margin-bottom: 15px;
-  background-color: white;
+  background-color: white; /* Keeping white background */
   padding: 15px;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Keeping original shadow */
   transition: all 0.2s;
-  border-left: 4px solid #4bc0c0;
+  border-left: 4px solid var(--primary-color);
 }
 
 .stats-list li:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Keeping original hover shadow */
 }
 
 .stats-list strong {
   display: block;
   margin-bottom: 5px;
-  color: #333;
+  color: var(--text-color-dark);
 }
 
 .stats-result {
   font-size: 15px;
-  color: #555;
+  color: #555; /* Keeping original color */
 }
 
 .stats-cost {
   font-weight: 600;
-  color: #36a1a1;
+  color: var(--secondary-color);
 }
 
 /* 몬테카를로 시뮬레이션 참고 문구 */
 .simulation-note {
   font-size: 0.9em;
-  color: #666;
+  color: #666; /* Keeping original color */
   margin-top: 20px;
 }

@@ -26,7 +26,7 @@ html, body {
 body {
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--text-color-dark); /* Dark text for light mode */
   background-color: var(--background-dark);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -103,7 +103,7 @@ body {
 
 .chart-info {
   font-size: 14px;
-  color: #666;
+  color: var(--text-color-dark); /* Dark text for light mode */
   margin-top: 30px;
   text-align: center;
   margin-bottom: 20px; /* 아래쪽 여백 추가 */
@@ -136,7 +136,7 @@ body {
 .input-group label {
   flex-shrink: 0;
   font-weight: 500;
-  color: #555; /* Keeping original color */
+  color: var(--text-color-dark); /* Dark text for light mode */
   margin-right: 15px;
   width: 120px;
   text-align: left;
@@ -424,7 +424,7 @@ body {
     margin-right: 0;
     margin-left: 5px;
     font-weight: normal;
-    color: #555; /* Keeping original color */
+    color: var(--text-color-dark); /* Dark text for light mode */
   }
 
   .input-group #pity-count {
@@ -627,7 +627,7 @@ body {
 
 .batch-info p {
   margin: 8px 0;
-  color: #555; /* Keeping original color */
+  color: var(--text-color-dark); /* Dark text for light mode */
 }
 
 .batch-info strong {
@@ -665,7 +665,7 @@ body {
 
 .stats-result {
   font-size: 15px;
-  color: #555; /* Keeping original color */
+  color: var(--text-color-dark); /* Dark text for light mode */
 }
 
 .stats-cost {
@@ -676,6 +676,6 @@ body {
 /* 몬테카를로 시뮬레이션 참고 문구 */
 .simulation-note {
   font-size: 0.9em;
-  color: #666; /* Keeping original color */
+  color: var(--text-color-dark); /* Dark text for light mode */
   margin-top: 20px;
 }

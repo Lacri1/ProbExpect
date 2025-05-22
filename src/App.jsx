@@ -400,7 +400,7 @@ function App() {
     }, [probPercent]);
 
     // 계산이 무거울 때 사용할 제한값
-    const MAX_SAFE_COMPUTATION = 100000;  // 최대 계산 범위 증가 (테스트를 위해 1M으로 낮춤)
+    const MAX_SAFE_COMPUTATION = 1000000;  // 최대 계산 범위 증가 (테스트를 위해 1M으로 낮춤)
     const COMPUTATION_WARNING_THRESHOLD = 10000; // 계산량 경고 임계값
 
     // 안전한 계산 체크 (대략적인 휴리스틱) - 캡처된 값을 사용하도록 수정
@@ -889,7 +889,7 @@ function App() {
                                 <span className="help-icon">?</span>
                                 <div className="input-help tooltip">
                                     천장은 두 가지 방식을 지원합니다.<br/>
-                                    일반형: {formatNumber(Number(pityCount) - 1)}회 내 미당첨 시, {formatNumber(Number(pityCount))}회에서 당첨 <br/>
+                                    일반형: 최근 {formatNumber(Number(pityCount) - 1)}회 미당첨 시, {formatNumber(Number(pityCount))}회에서 당첨 <br/>
                                     마일리지형: {formatNumber(Number(pityCount))}회마다 당첨 횟수 +1<br/>
                                     몬테카를로 시뮬레이션 방식으로 계산되며,<br/>
                                     시행 횟수가 적을 경우 오차가 발생할 수 있습니다.<br/>
@@ -974,7 +974,7 @@ function App() {
                                        <span className="help-icon average-icon"></span>
                                        <div className="input-help tooltip">
                                            평균 시도 횟수까지 당첨될 확률은 약 63.2%이다. <br/>
-                                           확률 1% 100번 하면 1개 이상 당첨될 확률은 약 63.2%
+                                           확률 1%를 100번 뽑을 때, 1개 이상 당첨될 확률은 약 63.2%
                                        </div>
                                     </span>
                                    <strong>

@@ -506,6 +506,16 @@ body {
     border-bottom-color: var(--secondary-color);
   }
 
+  /* Add color for body in dark mode */
+  body {
+    color: rgba(255, 255, 255, 0.87); /* Original light color for dark mode */
+  }
+
+  /* Add color for chart-info in dark mode */
+  .chart-info {
+    color: var(--text-color-light); /* Light text for dark mode */
+  }
+
   .input-controls {
     background-color: var(--background-dark-alt-2);
   }
@@ -550,20 +560,34 @@ body {
     background-color: var(--background-dark-alt) !important;
   }
 
+  /* Update batch-info p color for dark mode */
   .batch-info p {
-    color: #ccc !important;
+    color: var(--text-color-light) !important; /* Use variable and keep important */
   }
 
   .batch-info strong, .stats-list strong {
     color: var(--text-color-light) !important;
   }
 
+  /* Update stats-result color for dark mode */
   .stats-result {
-    color: #ccc !important;
+    color: var(--text-color-light) !important; /* Use variable and keep important */
   }
 
   .stats-cost {
     color: var(--secondary-color) !important;
+  }
+
+  /* Add color for simulation-note in dark mode */
+  .simulation-note {
+    color: var(--text-color-light); /* Light text for dark mode */
+  }
+
+  /* Add color for checkbox-label in dark mode mobile media query */
+  @media (max-width: 900px) {
+    .input-group .checkbox-label {
+      color: var(--text-color-light);
+    }
   }
 }
 

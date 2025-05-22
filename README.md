@@ -28,7 +28,9 @@ This tool was built to make it easier to understand and calculate expected value
 - Optimized adaptive probability chart scaling based on input probability and target
 - Displays results with formatted numbers (including exponential notation for large values)
 - Responsive and interactive chart with detailed tooltips
-- Added ceiling system logic based on Monte Carlo simulation to support scenarios with guaranteed success after a fixed number of attempts
+- Ceiling system logic using Monte Carlo simulation:
+  - **Normal ceiling**: Guarantees a success if no success is achieved within a fixed number of attempts (the ceiling count)
+  - **Mileage ceiling**: Guarantees +1 success every fixed number of attempts, regardless of previous results
 
 ---
 
@@ -47,7 +49,9 @@ This tool was built to make it easier to understand and calculate expected value
 
 - Built with React using functional components and hooks.
 - Uses memoization and callbacks to optimize performance on heavy computations.
-- Provides warnings for large computations to avoid UI blocking.
+- Prevents calculations under conditions of extreme complexity (e.g., very low probability with target wins and ceiling enabled) to avoid performance issues.
 - Probability calculations consider both single and multiple win scenarios.
 - Chart.js (via `react-chartjs-2`) used for rendering the probability graph with custom tooltip formatting.
-- Monte Carlo simulation is used to support ceiling mechanics, enabling more realistic modeling of systems with pity counters.
+- Monte Carlo simulation is used to support ceiling mechanics:
+  - Normal pity guarantees a success if none occur within the ceiling count
+  - Mileage-style pity adds one guaranteed win every fixed number of attempts

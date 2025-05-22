@@ -165,7 +165,7 @@ body {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--border-color-light);
+  border: 2px solid var(--text-color-dark); /* Darker border for light mode */
   border-radius: 4px;
   background-color: white;
   position: relative;
@@ -211,7 +211,7 @@ body {
 .input-number {
   width: 100px;
   padding: 8px 12px;
-  border: 2px solid var(--border-color-light);
+  border: 2px solid var(--text-color-dark); /* Darker border for light mode */
   border-radius: 6px;
   font-size: 16px;
   transition: all 0.2s;
@@ -670,7 +670,7 @@ body {
 
 .stats-cost {
   font-weight: 600;
-  color: var(--secondary-color);
+  color: var(--text-color-dark); /* Darker color for light mode */
 }
 
 /* 몬테카를로 시뮬레이션 참고 문구 */

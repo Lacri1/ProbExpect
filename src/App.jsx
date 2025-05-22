@@ -792,8 +792,8 @@ function App() {
                             fill: true,
                             tension: 0.1,
                              // 시뮬레이션 모드일 때 점 크기 작게
-                             pointRadius: useSimulationMode ? 1 : 3,
-                             pointHoverRadius: useSimulationMode ? 3 : 5,
+                             pointRadius: 1, // 모든 계산 방식에서 점 크기 작게 고정
+                             pointHoverRadius: 3, // 모든 계산 방식에서 마우스 오버 시 점 크기 작게 고정
                         },
                     ],
                     maxYScale
@@ -877,15 +877,6 @@ function App() {
                         }
                         return `확률: ${value}%`;
                     },
-                    // 마일리지 방식 툴팁 내용 추가
-                    afterBody: (context) => {
-                        if (chartInfo?.pityInfo?.isPityEnabled && chartInfo?.pityInfo?.isCumulativePity) {
-                            return `\n마일리지 천장: ${formatNumber(chartInfo.pityInfo.pityCount)}회 마다 확정 당첨`;
-                        } else if (chartInfo?.pityInfo?.isPityEnabled && !chartInfo?.pityInfo?.isCumulativePity) {
-                            return `\n일반 천장: ${formatNumber(chartInfo.pityInfo.pityCount - 1)}회 미당첨 시 ${formatNumber(chartInfo.pityInfo.pityCount)}번째 확정 당첨`;
-                        }
-                        return null;
-                    }
                 }
             },
              legend: {

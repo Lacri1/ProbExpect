@@ -291,7 +291,7 @@ body {
 
   /* Relative positioning adjustments for PC */
   top: 25px; /* 아이콘 아래로 위치 조정 */
-  left: -225px; /* Move tooltip further to the left for alignment */
+  left: -315px; /* Move tooltip further to the left for alignment */
 }
 
 /* 툴팁 말풍선 꼬리 (PC) */

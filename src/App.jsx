@@ -171,7 +171,8 @@ const simulateProbabilityWithPityAndMultipleWins = (
     batchSize, // 한 번에 뽑는 개수
     targetWinCount, // 목표 당첨 횟수
     pityCount, // 천장 횟수
-    numSimulations // 실행할 시뮬레이션 횟수
+    numSimulations, // 실행할 시뮬레이션 횟수
+    isCumulativePity // 누적 마일리지 모드 여부
 ) => {
     // 각 시뮬레이션에서 목표를 달성한 첫 번째 배치 번호를 기록 (목표 미달성 시 maxBatches + 1)
     const achievementBatches = Array(numSimulations).fill(maxBatches + 1);
@@ -179,28 +180,37 @@ const simulateProbabilityWithPityAndMultipleWins = (
     // 각 시뮬레이션 실행
     for (let sim = 0; sim < numSimulations; sim++) {
         let currentWins = 0; // 현재 시뮬레이션에서의 당첨 횟수
-        let attemptsSinceLastWin = 0; // 마지막 당첨 후 시도 횟수
+        let attemptsSinceLastWin = 0; // 마지막 당첨 후 시도 횟수 (일반 천장)
+        let cumulativePityAttempts = 0; // 누적 마일리지 시도 횟수 (누적 마일리지 천장)
 
         // 최대 배치 수까지 시뮬레이션 진행
         for (let batchNum = 1; batchNum <= maxBatches; batchNum++) {
             // 현재 배치 내에서 개별 시도 시뮬레이션
             for (let i = 0; i < batchSize; i++) {
                 attemptsSinceLastWin++;
+                cumulativePityAttempts++; // 누적 마일리지 시도 횟수 증가
 
                 let isWin = false;
-                // 천장 발동 조건 확인
-                if (pityCount > 0 && attemptsSinceLastWin >= pityCount) {
-                    isWin = true; // 천장 발동
-                } else {
-                    // 일반 확률 당첨
-                    if (Math.random() < p) {
+
+                if (isCumulativePity) {
+                    // 누적 마일리지 모드:
+                    // 일반 당첨 또는 천장 당첨 (천장 횟수의 배수에 도달 시)
+                    if (Math.random() < p || (pityCount > 0 && cumulativePityAttempts > 0 && cumulativePityAttempts % pityCount === 0)) {
                         isWin = true;
+                        // 누적 마일리지 모드에서는 당첨되어도 cumulativePityAttempts 리셋하지 않음
+                        // 다음 천장까지 남은 횟수만 확인
+                    }
+                } else {
+                    // 일반 천장 모드:
+                    // 일반 당첨 또는 천장 당첨 (천장 횟수에 도달 시)
+                    if (Math.random() < p || (pityCount > 0 && attemptsSinceLastWin >= pityCount)) {
+                         isWin = true;
+                         attemptsSinceLastWin = 0; // 일반 천장은 당첨 시 카운트 리셋
                     }
                 }
 
                 if (isWin) {
                     currentWins++;
-                    attemptsSinceLastWin = 0; // 마지막 당첨 후 시도 횟수 리셋
                 }
 
                 // 목표 당첨 횟수 달성 시 시뮬레이션 중단 및 달성 배치 기록
@@ -209,8 +219,8 @@ const simulateProbabilityWithPityAndMultipleWins = (
                     break; // 현재 시뮬레이션 중단 (inner loop)
                 }
             }
-             // 목표 달성했으면 현재 시뮬레이션 중단 (outer loop)
-             if(currentWins >= targetWinCount) break;
+            // 목표 달성했으면 현재 시뮬레이션 중단 (outer loop)
+            if(currentWins >= targetWinCount) break;
         }
     }
 
@@ -222,9 +232,9 @@ const simulateProbabilityWithPityAndMultipleWins = (
     labels.push(0);
     probData.push(0);
 
-     // 그래프 데이터 포인트 간격 설정 (샘플링)
-     const maxDataPoints = 300; // 그래프 데이터 포인트 수
-     const interval = Math.max(1, Math.floor(maxBatches / maxDataPoints));
+    // 그래프 데이터 포인트 간격 설정 (샘플링)
+    const maxDataPoints = 300; // 그래프 데이터 포인트 수
+    const interval = Math.max(1, Math.floor(maxBatches / maxDataPoints));
 
     for(let batchNum = 1; batchNum <= maxBatches; batchNum += interval){
         // 해당 배치 번호까지 목표를 달성한 시뮬레이션 수 계산
@@ -238,18 +248,18 @@ const simulateProbabilityWithPityAndMultipleWins = (
         labels.push(batchNum);
         probData.push((prob * 100).toFixed(4)); // 퍼센트로 변환 및 정밀도 설정
     }
-     // 마지막 포인트 추가
-     if(maxBatches > 0 && labels[labels.length - 1] !== maxBatches) {
-         let achievedCount = 0;
-         for(let sim = 0; sim < numSimulations; sim++){
-             if(achievementBatches[sim] <= maxBatches){
-                 achievedCount++;
-             }
-         }
-         const prob = achievedCount / numSimulations;
-         labels.push(maxBatches);
-         probData.push((prob * 100).toFixed(4));
-     }
+    // 마지막 포인트 추가
+    if(maxBatches > 0 && labels[labels.length - 1] !== maxBatches) {
+        let achievedCount = 0;
+        for(let sim = 0; sim < numSimulations; sim++){
+            if(achievementBatches[sim] <= maxBatches){
+                achievedCount++;
+            }
+        }
+        const prob = achievedCount / numSimulations;
+        labels.push(maxBatches);
+        probData.push((prob * 100).toFixed(4));
+    }
 
     // 통계치 계산 (20%, 63.2%, 80%에 도달하는 배치 수)
     // achievementBatches 배열을 정렬하여 백분위수 위치의 값을 찾음
@@ -277,7 +287,8 @@ const findAttemptsForProbOptimizedWithPity = (
     targetWinCount, // 목표 당첨 횟수 (복수 당첨 모드일 때만 사용)
     maxBatchesLimit, // 이분 탐색 상한 (배치 단위)
     isPityEnabled, // 천장 시스템 사용 여부
-    pityCount // 천장 횟수
+    pityCount, // 천장 횟수
+    isCumulativePity // 누적 마일리지 모드 여부
 ) => {
     if (targetProb <= 0) return 0; // 목표 확률 0 이하면 0회 시도
     if (targetProb >= 1) {
@@ -376,6 +387,7 @@ function App() {
     // 천장 시스템 관련 상태 추가
     const [isPityEnabled, setIsPityEnabled] = useState(false); // 예시: 기본값 false
     const [pityCount, setPityCount] = useState("300"); // 예시: 기본값 300
+    const [isCumulativePity, setIsCumulativePity] = useState(false); // 누적 마일리지 모드 상태 추가
 
     // 입력된 확률을 소수점으로 변환
     const p = useMemo(() => {
@@ -436,6 +448,7 @@ function App() {
         const currentIsMultipleWin = isMultipleWin;
         const currentIsPityEnabled = isPityEnabled;
         const currentPityCount = pityCount;
+        const currentIsCumulativePity = isCumulativePity; // isCumulativePity 상태 캡처
 
 
         // 문자열 상태를 숫자로 변환
@@ -457,6 +470,17 @@ function App() {
             setCalculating(false); // 유효성 검사 실패 시 calculating 상태 해제
             return;
         }
+
+        // 특정 조건 (확률 낮음 + 목표 당첨 횟수 + 천장 시스템)에서 계산 차단
+        if (inputProb < 0.1 && currentIsMultipleWin && currentIsPityEnabled && target > 0 && pity > 0) {
+             alert("확률이 0.1 미만에서서 목표 당첨 횟수 및 천장 시스템이 함께 활성화된 경우 계산을 제공하지 않습니다.");
+             setCalculating(false);
+             setData(null);
+             setStats(null);
+             setChartInfo(null);
+             return;
+        }
+
         // 확률 0%인데 목표 당첨 횟수가 0보다 크거나, 확률 100%인데 목표 당첨 횟수가 총 시도 가능 횟수보다 클 경우 특수 처리
         if (inputProb === 0) { // 확률 0%인 경우
             if (currentIsMultipleWin && target > 0) {
@@ -475,14 +499,14 @@ function App() {
         if (inputProb >= 100) {
             const totalPossibleAtMaxAttempts = MAX_SAFE_COMPUTATION * batch;
             if (currentIsMultipleWin && target > totalPossibleAtMaxAttempts) {
-                 alert(`당첨 확률 100%에도 최대 시도 횟수(${formatNumber(MAX_SAFE_COMPUTATION)} 세트) 내에서 목표 당첨 횟수(${formatNumber(target)}회)를 달성할 수 없습니다.`);
-                 setCalculating(false);
-                 setData(null);
-                 setStats(null);
-                 setChartInfo(null);
-                 return;
+                alert(`당첨 확률 100%에도 최대 시도 횟수(${formatNumber(MAX_SAFE_COMPUTATION)} 세트) 내에서 목표 당첨 횟수(${formatNumber(target)}회)를 달성할 수 없습니다.`);
+                setCalculating(false);
+                setData(null);
+                setStats(null);
+                setChartInfo(null);
+                return;
             }
-         }
+        }
 
 
         // 비동기로 처리하여 UI 블록 방지
@@ -505,9 +529,9 @@ function App() {
 
                 // 최적 시도 횟수 계산 (배치 단위) - 그래프 X축 범위 결정
                 // 복수 당첨 & 천장 시뮬레이션 모드에서는 시뮬레이션 결과 기반으로 범위 조정이 더 정확할 수 있으나, 초기 범위 설정을 위해 findAttempts 유지
-                 const estimatedMaxBatches = findAttemptsForProbOptimizedWithPity(
+                const estimatedMaxBatches = findAttemptsForProbOptimizedWithPity(
                     0.995, currentP, batch, currentIsMultipleWin, target, // 목표 확률을 99.5%로 높여 그래프 범위를 넓게 표시
-                    MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity // 캡처된 isPityEnabled와 pity 사용
+                    MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity, currentIsCumulativePity // 캡처된 isPityEnabled와 pity 사용
                 );
                 const finalMaxBatches = Math.max(1, estimatedMaxBatches);
                 setDynamicMaxAttempts(finalMaxBatches);
@@ -525,23 +549,24 @@ function App() {
                     console.log(`Starting Monte Carlo simulation with ${numSimulations} runs for maxBatches: ${finalMaxBatches}`);
 
                     const simResult = simulateProbabilityWithPityAndMultipleWins(
-                        finalMaxBatches, currentP, batch, target, pity, numSimulations
+                        finalMaxBatches, currentP, batch, target, pity, numSimulations,
+                        currentIsCumulativePity // isCumulativePity 값 전달
                     );
 
                     labels.push(...simResult.labels.slice(1)); // 시뮬레이션 결과 라벨 추가
                     probData.push(...simResult.probData.slice(1)); // 시뮬레이션 결과 데이터 추가
 
-                     // 시뮬레이션 결과에서 통계치 배치 수 가져오기
+                    // 시뮬레이션 결과에서 통계치 배치 수 가져오기
                     batches20 = simResult.batches20;
                     batches63 = simResult.batches63;
                     batches80 = simResult.batches80;
 
-                     // 시뮬레이션 결과에서 최대 확률 찾기
+                    // 시뮬레이션 결과에서 최대 확률 찾기
                     maxProbForScaling = simResult.probData.reduce((max, current) => Math.max(max, parseFloat(current) / 100), initialProb);
 
                 } else { // 그 외의 경우 (단일 당첨 또는 복수 당첨 & 천장 미사용) 기존 계산 방식 사용
 
-                     // 그래프 데이터 포인트 수 결정 (너무 많은 포인트는 성능에 영향)
+                    // 그래프 데이터 포인트 수 결정 (너무 많은 포인트는 성능에 영향)
                     const maxDataPoints = 300; // 데이터 포인트 수 증가
                     const step = Math.max(1, Math.floor(finalMaxBatches / maxDataPoints)); // finalMaxBatches 사용
 
@@ -562,29 +587,29 @@ function App() {
 
                     // 마지막 포인트 추가 (최대값)
                     if (finalMaxBatches > 0 && labels[labels.length - 1] !== finalMaxBatches) {
-                         let prob;
-                         if (currentIsMultipleWin) {
-                             prob = calculateProbabilityForMultipleWinsWithPity(finalMaxBatches, currentP, batch, target, pity);
-                         } else {
-                             prob = calculateProbabilityWithPity(finalMaxBatches * batch, currentP, pity);
-                         }
-                         if (isNaN(prob) || prob < 0) prob = 0;
-                         if (prob > 1) prob = 1;
-                         maxProbForScaling = Math.max(maxProbForScaling, prob);
-                         labels.push(finalMaxBatches);
-                         probData.push((prob * 100).toFixed(4));
+                        let prob;
+                        if (currentIsMultipleWin) {
+                            prob = calculateProbabilityForMultipleWinsWithPity(finalMaxBatches, currentP, batch, target, pity);
+                        } else {
+                            prob = calculateProbabilityWithPity(finalMaxBatches * batch, currentP, pity);
+                        }
+                        if (isNaN(prob) || prob < 0) prob = 0;
+                        if (prob > 1) prob = 1;
+                        maxProbForScaling = Math.max(maxProbForScaling, prob);
+                        labels.push(finalMaxBatches);
+                        probData.push((prob * 100).toFixed(4));
                     }
 
-                     // 기존 계산 방식 사용 시 통계치 계산
-                     batches20 = findAttemptsForProbOptimizedWithPity(
-                         0.2, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity
-                     );
-                     batches63 = findAttemptsForProbOptimizedWithPity(
-                         0.6321, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity
-                     );
-                     batches80 = findAttemptsForProbOptimizedWithPity(
-                         0.8, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity
-                     );
+                    // 기존 계산 방식 사용 시 통계치 계산
+                    batches20 = findAttemptsForProbOptimizedWithPity(
+                        0.2, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity, currentIsCumulativePity
+                    );
+                    batches63 = findAttemptsForProbOptimizedWithPity(
+                        0.6321, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity, currentIsCumulativePity
+                    );
+                    batches80 = findAttemptsForProbOptimizedWithPity(
+                        0.8, currentP, batch, currentIsMultipleWin, target, MAX_SAFE_COMPUTATION, currentIsPityEnabled, pity, currentIsCumulativePity
+                    );
                 }
 
 
@@ -607,7 +632,7 @@ function App() {
 
 
                 // 통계 설정
-                 // 시뮬레이션 또는 기존 계산 결과에서 얻은 batchesXX 값을 사용하여 통계 업데이트
+                // 시뮬레이션 또는 기존 계산 결과에서 얻은 batchesXX 값을 사용하여 통계 업데이트
                 setStats({
                     n20: { n: batches20, cost: formatNumber(batches20 * c) },
                     n63: { n: batches63, cost: formatNumber(batches63 * c) },
@@ -668,7 +693,7 @@ function App() {
             }
         }, 50);
 
-    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin, isPityEnabled, pityCount]);
+    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin, isPityEnabled, pityCount, isCumulativePity]); // isCumulativePity 의존성 추가
 
     // 페이지 로드 시 초기 계산 수행
     useEffect(() => {
@@ -783,7 +808,7 @@ function App() {
                                             {chartInfo.isMultipleWin && chartInfo.pityInfo.confirmWinsAtMaxAttempts != null && (
                                                 <>
                                                     <br/>{`최대 시도 (${formatNumber(chartInfo.dynamicMaxAttempts)} 세트)에서 천장 확정 당첨:
-                                                    최소 ${formatNumber(chartInfo.pityInfo.confirmWinsAtMaxAttempts)}회`}
+                                                    ${formatNumber(chartInfo.pityInfo.confirmWinsAtMaxAttempts)}회`}
                                                 </>
                                             )}
                                         </p>
@@ -875,7 +900,9 @@ function App() {
                             <span className="help-container">
                                 <span className="help-icon">?</span>
                                 <div className="input-help tooltip">
-                                    지정한 횟수({formatNumber(Number(pityCount))}회)마다 당첨됩니다.<br/>
+                                    천장은 두 가지 방식 중 하나로 동작합니다.<br/>
+                                    일반형: 지정한 횟수 내 미당첨 시, 마지막 회차에서 확정 당첨<br/>
+                                    마일리지형: 지정한 횟수마다 당첨 횟수 +1<br/>
                                     몬테카를로 시뮬레이션 방식으로 계산되며, 시행 횟수가 적을 경우 오차가 발생할 수 있습니다.<br/>
                                     ※ 시뮬레이션 복잡도로 인해 계산 시간이 길어질 수 있습니다.
                                 </div>
@@ -894,6 +921,20 @@ function App() {
                                 className="input-number"
                                 disabled={calculating}
                             />
+                        </div>
+                    )}
+
+                    {isPityEnabled && (
+                        <div className="input-group checkbox-group">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={isCumulativePity}
+                                    onChange={() => setIsCumulativePity(!isCumulativePity)}
+                                    disabled={calculating}
+                                />
+                                마일리지 방식
+                            </label>
                         </div>
                     )}
 

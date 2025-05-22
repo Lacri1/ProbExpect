@@ -194,11 +194,14 @@ const simulateProbabilityWithPityAndMultipleWins = (
 
                 if (isCumulativePity) {
                     // 누적 마일리지 모드:
-                    // 일반 당첨 또는 천장 당첨 (천장 횟수의 배수에 도달 시)
-                    if (Math.random() < p || (pityCount > 0 && cumulativePityAttempts > 0 && cumulativePityAttempts % pityCount === 0)) {
+                    // 확률 당첨
+                    if (Math.random() < p) {
                         isWin = true;
-                        // 누적 마일리지 모드에서는 당첨되어도 cumulativePityAttempts 리셋하지 않음
-                        // 다음 천장까지 남은 횟수만 확인
+                    }
+                    // 천장 당첨 (확률 당첨과 별개로 추가)
+                    if (pityCount > 0 && cumulativePityAttempts > 0 && cumulativePityAttempts % pityCount === 0) {
+                        currentWins++; // 확률 당첨과 별개로 1회 추가
+                        // cumulativePityAttempts는 리셋되지 않음
                     }
                 } else {
                     // 일반 천장 모드:
@@ -408,7 +411,7 @@ function App() {
         // DP 계산 복잡성을 고려하여 임계값 조정 필요
         if (currentIsMultipleWin && currentP > 0) {
             // 대략적인 DP 상태 공간 크기: numBatches * K * M
-            // numBatches의 상한은 findAttemptsForProbOptimizedWithPity에서 결정됨
+            // numBatches의 상한은 findAttemptsForProbOptimized에서 결정됨
             // 여기서는 계산 전 예측이므로, 대략적인 totalAttempts 상한을 MAX_SAFE_COMPUTATION * batchSize로 가정
             const estimatedTotalAttempts = MAX_SAFE_COMPUTATION * currentBatchSize;
             const estimatedDPStates = estimatedTotalAttempts * currentTargetWinCount * Number(pityCount); // pityCount 상태 직접 사용
@@ -646,7 +649,8 @@ function App() {
                         n80: batches80 * batch
                     },
                     pityEnabled: currentIsPityEnabled,  // 캡처된 값 사용
-                    pityCount: pity              // 캡처된 값 사용
+                    pityCount: pity,              // 캡처된 값 사용
+                    isCumulativePity: currentIsCumulativePity
                 });
 
                 setChartInfo({
@@ -679,8 +683,8 @@ function App() {
                             backgroundColor: "rgba(75,192,192,0.2)",
                             fill: true,
                             tension: 0.1,
-                            pointRadius: 3,
-                            pointHoverRadius: 5,
+                            pointRadius: 1,
+                            pointHoverRadius: 3,
                         },
                     ],
                     maxYScale
@@ -693,7 +697,7 @@ function App() {
             }
         }, 50);
 
-    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin, isPityEnabled, pityCount, isCumulativePity]); // isCumulativePity 의존성 추가
+    }, [probPercent, cost, batchSize, targetWinCount, isMultipleWin, isPityEnabled, pityCount, isCumulativePity, chartInfo?.dynamicMaxAttempts]); // 의존성 배열 업데이트
 
     // 페이지 로드 시 초기 계산 수행
     useEffect(() => {
@@ -798,22 +802,6 @@ function App() {
                                     ? ` (총 ${formatNumber(chartInfo.dynamicMaxAttempts * chartInfo.batchSize)}회 뽑기)`
                                     : ''}
                                 까지 표시됩니다.
-
-                                {/* 천장 시스템 정보 추가 */}
-                                {chartInfo.pityInfo && chartInfo.pityInfo.isPityEnabled && chartInfo.pityInfo.pityCount > 0 && ( // 천장 횟수가 0보다 클 때만 표시
-                                    <div className="pity-info">
-                                        <p>
-                                            천장 시스템: {formatNumber(chartInfo.pityInfo.pityCount)}회 시도 후 확정 당첨
-                                            {chartInfo.pityInfo.batchesForPity != null && ` (${formatNumber(chartInfo.pityInfo.batchesForPity)}회 구매)`}
-                                            {chartInfo.isMultipleWin && chartInfo.pityInfo.confirmWinsAtMaxAttempts != null && (
-                                                <>
-                                                    <br/>{`최대 시도 (${formatNumber(chartInfo.dynamicMaxAttempts)} 세트)에서 천장 확정 당첨:
-                                                    ${formatNumber(chartInfo.pityInfo.confirmWinsAtMaxAttempts)}회`}
-                                                </>
-                                            )}
-                                        </p>
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
@@ -900,9 +888,9 @@ function App() {
                             <span className="help-container">
                                 <span className="help-icon">?</span>
                                 <div className="input-help tooltip">
-                                    천장은 두 가지 방식 중 하나로 동작합니다.<br/>
-                                    일반형: 지정한 횟수 내 미당첨 시, 마지막 회차에서 확정 당첨<br/>
-                                    마일리지형: 지정한 횟수마다 당첨 횟수 +1<br/>
+                                    천장은 두 가지 방식을 지원합니다.<br/>
+                                    일반형: {formatNumber(Number(pityCount) - 1)}회 내 미당첨 시, {formatNumber(Number(pityCount))}회에서 당첨 <br/>
+                                    마일리지형: {formatNumber(Number(pityCount))}회마다 당첨 횟수 +1<br/>
                                     몬테카를로 시뮬레이션 방식으로 계산되며,<br/>
                                     시행 횟수가 적을 경우 오차가 발생할 수 있습니다.<br/>
                                     ※ 시뮬레이션 복잡도로 인해 계산 시간이 길어질 수 있습니다.
@@ -954,11 +942,19 @@ function App() {
                                 {stats.batchSize === 1
                                     ? `${stats.pPercent}%`
                                     : `${formatNumber(
-                                        ((1 - Math.pow(1 - stats.pIndividual, stats.batchSize)) * 100)
-                                    )}%`}
+                                          ((1 - Math.pow(1 - stats.pIndividual, stats.batchSize)) * 100)
+                                      )}%`}
                             </p>
                             {stats.pityEnabled && stats.pityCount > 0 && (
-                                <p><strong>천장 시스템:</strong> {formatNumber(stats.pityCount)}회 시도 후 확정 당첨</p>
+                                <p>
+                                    <strong>천장:</strong>{" "}
+                                    {stats.isCumulativePity ?
+                                        ` ${formatNumber(stats.pityCount)}회 시도마다 확정 당첨` :
+                                        <>
+                                            {` ${formatNumber(stats.pityCount - 1)}회 미당첨 시 ${formatNumber(stats.pityCount)}번째 확정 당첨`}
+                                        </>
+                                    }
+                                </p>
                             )}
                         </div>
                         <ul className="stats-list">

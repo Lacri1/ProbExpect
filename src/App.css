@@ -703,3 +703,76 @@ body {
   color: var(--text-color-dark); /* Dark text for light mode */
   margin-top: 20px;
 }
+
+/* stats-help-tooltip 스타일 (평균 63.2% 옆 툴팁) */
+.stats-help-tooltip .help-icon {
+    /* 기존 .help-icon 스타일 상속 */
+}
+
+.stats-help-tooltip .help-icon::after {
+  content: '!'; /* 느낌표 아이콘 */
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 40%; /* Adjust vertical position further upwards */
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.stats-help-tooltip .input-help.tooltip {
+  /* .input-help.tooltip 기본 스타일 상속 */
+  width: 340px; /* 고정 너비 */
+  background-color: #555; /* Keeping original tooltip background */
+  color: #fff;
+  text-align: left; /* Revert to left align text */
+  border-radius: 6px;
+  padding: 15px; /* 패딩 조정 */
+  position: absolute; /* 부모 기준 절대 위치 */
+  z-index: 1000; /* 가장 위로 */
+  box-sizing: border-box; /* 패딩 포함 너비 계산 */
+  transition: opacity 0.3s ease; /* 부드러운 표시/숨김 */
+  box-shadow: var(--box-shadow-dark);
+  font-size: 12px; /* 폰트 사이즈 */
+  line-height: 1.6; /* 줄 간격 */
+  white-space: normal;
+  pointer-events: none;
+
+  /* PC positioning */
+  top: 25px; /* 아이콘 아래로 위치 조정 */
+  left: -315px; /* Move tooltip further to the left for alignment */
+}
+
+/* stats-help-tooltip 모바일 반응형 스타일 */
+@media (max-width: 900px) {
+  .stats-help-tooltip .input-help.tooltip {
+    width: calc(100% - 40px) !important; /* 너비 설정 (좌우 20px 여백) */
+    max-width: 400px !important; /* 최대 너비 제한 */
+    min-width: 200px; /* 모바일에서도 최소 너비 유지 */
+    left: 50% !important; /* 화면 중앙에 배치 */
+    right: auto !important; /* right 속성 초기화 */
+    top: 50% !important; /* 화면 중앙에 배치 */
+    bottom: auto !important; /* 하단 기준 위치 지정 무효화 */
+    margin-left: 0;
+    transform: translate(-50%, -50%) !important; /* 중앙 정렬 변환 */
+    position: fixed !important; /* 화면에 고정 */
+    z-index: 1000 !important; /* 가장 위로 */
+    box-sizing: border-box; /* 패딩 포함 너비 계산 */
+    font-size: 14px; /* 폰트 사이즈 */
+    padding: 15px; /* 패딩 조정 */
+  }
+
+  .stats-help-tooltip .input-help.tooltip::after {
+     display: none !important; /* 모바일에서는 꼬리 숨김 */
+  }
+}
+
+/* average-icon 스타일 (평균 63.2% 옆 느낌표 아이콘) */
+.average-icon::after {
+  content: '!'; /* 느낌표 아이콘 */
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 40%; /* Adjust vertical position further upwards */
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

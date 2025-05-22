@@ -969,7 +969,15 @@ function App() {
                             )}
                             {!isNaN(stats.n63.n) && isFinite(stats.n63.n) && (
                                 <li>
-                                    평균 63.2% <strong>
+                                    평균 63.2%
+                                    <span className="help-container stats-help-tooltip">
+                                       <span className="help-icon average-icon"></span>
+                                       <div className="input-help tooltip">
+                                           평균 시도 횟수까지 당첨될 확률은 약 63.2%이다. <br/>
+                                           확률 1% 100번 하면 1개 이상 당첨될 확률은 약 63.2%
+                                       </div>
+                                    </span>
+                                   <strong>
                                     {formatNumber(stats.n63.n)} {stats.batchSize > 1 ? '세트' : '회'}{' '}
                                     {stats.batchSize > 1 ? `(총 ${formatNumber(stats.totalTrials.n63)}회)` : ''}, 비용 {stats.n63.cost}
                                 </strong>

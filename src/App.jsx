@@ -611,13 +611,13 @@ function App() {
                     // 최종 상한 적용
                     finalMaxBatches = Math.min(finalMaxBatches, MAX_SAFE_COMPUTATION);
                      // 그래프 최소 범위 보장
-                    finalMaxBatches = Math.max(finalMaxBatches, 50); // 최소 50 배치 보장
+                    finalMaxBatches = Math.max(finalMaxBatches, 5); // 최소 20 배치 보장
 
                 } else { // 천장 시스템 미사용 시 (단일 당첨 또는 복수 당첨 + 천장 Off)
                     // 99.5% 도달 시점 기반 finalMaxBatches를 사용하되, MAX_SAFE_COMPUTATION으로 제한
                     finalMaxBatches = Math.min(finalMaxBatches, MAX_SAFE_COMPUTATION);
                      // 그래프 최소 범위 보장
-                    finalMaxBatches = Math.max(finalMaxBatches, 50); // 최소 50 배치 보장
+                    finalMaxBatches = Math.max(finalMaxBatches, 5); // 최소 20 배치 보장
                 }
 
                 setDynamicMaxAttempts(finalMaxBatches);

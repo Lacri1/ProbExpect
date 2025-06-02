@@ -517,20 +517,20 @@ function App() {
 
         // 유효성 검사
         if (
-            isNaN(inputProb) || inputProb < 0 ||
+            isNaN(inputProb) || inputProb < 0 || inputProb > 100 ||
             isNaN(c) || c <= 0 ||
             isNaN(batch) || batch <= 0 ||
             (currentIsMultipleWin && (isNaN(target) || target < 1)) ||
             (currentIsPityEnabled && (isNaN(pity) || pity < 1))
         ) {
-            alert("모든 입력란에 올바른 숫자를 입력해주세요 (확률 0% 및 목표/천장 횟수 0 제외). 미국식 숫자 표기법(예: 0.5)을 사용해주세요.");
+            alert("모든 입력란에 올바른 숫자를 입력해주세요 (확률 0% ~ 100%, 목표/천장 횟수 0 제외).");
             setCalculating(false); // 유효성 검사 실패 시 calculating 상태 해제
             return;
         }
 
         // 특정 조건 (확률 낮음 + 목표 당첨 횟수 + 천장 시스템)에서 계산 차단
         if (inputProb < 0.1 && currentIsMultipleWin && currentIsPityEnabled && target > 0 && pity > 0) {
-             alert("확률이 0.1 미만에서서 목표 당첨 횟수 및 천장 시스템이 함께 활성화된 경우 계산을 제공하지 않습니다.");
+             alert("확률이 0.1 미만에서 목표 당첨 횟수 및 천장 시스템이 함께 활성화된 경우 계산을 제공하지 않습니다.");
              setCalculating(false);
              setData(null);
              setStats(null);

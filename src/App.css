@@ -44,7 +44,6 @@ body {
   text-align: center;
   background-color: var(--background-light);
   background-image: linear-gradient(135deg, #f5f7fa 0%, #e4eaec 100%);
-  border-radius: 12px;
   box-shadow: var(--box-shadow-medium);
 }
 

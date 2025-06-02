@@ -358,17 +358,11 @@ body {
     width: 100%;
   }
 
-  /* 섹션 간 세로 여백 추가 */
-   .graph-section {
-     margin-bottom: 30px;
-     padding-bottom: 1rem;
-     max-height: 70vh;
-     overflow-y: auto;
-   }
-
-   .right-panel {
-     padding-top: 20px;
-   }
+  /* 그래프 영역 스크롤 방지 */
+  .graph-section {
+    overflow: hidden; /* Add this line to hide any overflow */
+    overflow-y: auto; /* Keep vertical scroll for content below chart if needed */
+  }
 
   /* 메인 제목 중앙 정렬 */
   .graph-section h1 {
@@ -379,18 +373,7 @@ body {
     border-bottom-width: 2px;
   }
 
-  /* 차트 wrapper 높이 조정 및 패딩 */
-  .chart-wrapper {
-    height: 300px;
-    padding: 10px;
-  }
-
-  /* 차트 정보 여백 조정 */
-  .chart-info {
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-
+  
   /* 입력 컨트롤 영역 패딩 조정 */
   .input-controls {
     padding: 15px;

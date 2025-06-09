@@ -794,6 +794,7 @@ function App() {
                              // 시뮬레이션 모드일 때 점 크기 작게
                              pointRadius: 1, // 모든 계산 방식에서 점 크기 작게 고정
                              pointHoverRadius: 3, // 모든 계산 방식에서 마우스 오버 시 점 크기 작게 고정
+                            pointHitRadius: 15, // 호버 감지 반경 증가
                         },
                     ],
                     maxYScale
